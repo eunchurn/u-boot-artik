@@ -320,6 +320,25 @@ static inline int exynos_pkg_is_##type(void)			\
 
 IS_SAMSUNG_PKG_TYPE(pop, 0x2)
 
+#define IS_EXYNOS_TYPE(type, id)			\
+static inline int proid_is_##type(void)			\
+{							\
+	return s5p_cpu_id == id;			\
+}
+
+IS_EXYNOS_TYPE(exynos3250, 0x3250)
+IS_EXYNOS_TYPE(exynos4210, 0x4210)
+IS_EXYNOS_TYPE(exynos4212, 0x4212)
+IS_EXYNOS_TYPE(exynos4412, 0x4412)
+IS_EXYNOS_TYPE(exynos4415, 0x4415)
+IS_EXYNOS_TYPE(exynos5250, 0x5250)
+IS_EXYNOS_TYPE(exynos5260, 0x5260)
+IS_EXYNOS_TYPE(exynos5410, 0x5410)
+IS_EXYNOS_TYPE(exynos5420, 0x5420)
+IS_EXYNOS_TYPE(exynos5422, 0x5422)
+IS_EXYNOS_TYPE(exynos5800, 0x5422)
+IS_EXYNOS_TYPE(exynos5430, 0x5430)
+
 #define SAMSUNG_BASE(device, base)				\
 static inline unsigned int samsung_get_base_##device(void)	\
 {								\
