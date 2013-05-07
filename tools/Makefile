@@ -106,6 +106,7 @@ OBJ_FILES-$(CONFIG_XWAY_SWAP_BYTES) += xway-swap-bytes.o
 NOPED_OBJ_FILES-y += aisimage.o
 NOPED_OBJ_FILES-y += kwbimage.o
 NOPED_OBJ_FILES-y += imximage.o
+NOPED_OBJ_FILES-y += image-host.o
 NOPED_OBJ_FILES-y += omapimage.o
 NOPED_OBJ_FILES-y += mkenvimage.o
 NOPED_OBJ_FILES-y += mkimage.o
@@ -232,6 +233,7 @@ $(obj)mkimage$(SFX):	$(obj)aisimage.o \
 			$(obj)fit_image.o \
 			$(obj)image-fit.o \
 			$(obj)image.o \
+			$(obj)image-host.o \
 			$(obj)imximage.o \
 			$(obj)kwbimage.o \
 			$(obj)md5.o \
