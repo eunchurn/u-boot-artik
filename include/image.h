@@ -613,8 +613,6 @@ int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
 int fit_set_hashes(void *fit);
 int fit_image_set_hashes(void *fit, int image_noffset);
-int fit_image_hash_set_value(void *fit, int noffset, uint8_t *value,
-				int value_len);
 
 int fit_image_verify(const void *fit, int noffset);
 int fit_all_image_verify(const void *fit);
