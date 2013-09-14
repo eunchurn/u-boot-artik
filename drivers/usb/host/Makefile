@@ -57,6 +57,7 @@ COBJS-$(CONFIG_USB_EHCI_VCT) += ehci-vct.o
 
 # xhci
 COBJS-$(CONFIG_USB_XHCI) += xhci.o xhci-mem.o xhci-ring.o
+COBJS-$(CONFIG_USB_XHCI_EXYNOS) += xhci-exynos5.o
 
 # designware
 COBJS-$(CONFIG_USB_DWC2) += dwc2.o
