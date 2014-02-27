@@ -135,7 +135,11 @@ reset:
 	bicne	r0, r0, #0x1f		@ clear all mode bits
 	orrne	r0, r0, #0x13		@ set SVC mode
 	orr	r0, r0, #0xc0		@ disable FIQ and IRQ
-	msr	cpsr,r0
+#ifdef CONFIG_EXYNOS_HYP_MODE
+	msr	cpsr_c, r0
+#else
+	msr     cpsr,r0
+#endif
 
 #if !defined(CONFIG_TEGRA2)
 /*
@@ -152,6 +156,14 @@ reset:
 	/* Set vector address in CP15 VBAR register */
 	ldr	r0, =_start
 	mcr	p15, 0, r0, c12, c0, 0	@Set VBAR
+
+#ifdef CONFIG_EXYNOS_HYP_MODE
+	/*
+	 * Set vector address in HVBAR register if we booted in HYP mode.
+	 * We reuse the condition flags from the HYP check above.
+	 */
+	mcreq	p15, 4, r0, c12, c0, 0  @Set HVBAR
+#endif
 #endif
 #endif	/* !Tegra2 */
 
@@ -292,6 +304,14 @@ jump_2_ram:
 	ldr     r0, =_start
 	add     r0, r0, r9
 	mcr     p15, 0, r0, c12, c0, 0  @Set VBAR
+
+#ifdef CONFIG_EXYNOS_HYP_MODE
+	/* Set vector address in HVBAR register if we're in HYP mode. */
+	mrs	r1, cpsr
+	and	r1, r1, #0x1f		@ mask mode bits
+	teq	r1, #0x1a		@ test for HYP mode
+	mcreq	p15, 4, r0, c12, c0, 0  @Set HVBAR
+#endif
 #endif
 #endif /* !Tegra2 */
 
@@ -460,6 +480,12 @@ ENDPROC(cpu_init_crit)
 	str	lr, [r13, #4]			@ save spsr in position 1 of
 						@ saved stack
 
+#ifdef CONFIG_EXYNOS_HYP_MODE
+	mrs	lr, cpsr			@ get the cpsr
+	and	lr, lr, #0x1f			@ mask mode bits
+	teq	lr, #0x1a			@ test for HYP mode
+	beq	1f				@ if in HYP skip SVC switch
+#endif
 	mov	r13, #MODE_SVC			@ prepare SVC-Mode
 	@ msr	spsr_c, r13
 	msr	spsr, r13			@ switch modes, make sure
@@ -467,6 +493,7 @@ ENDPROC(cpu_init_crit)
 	mov	lr, pc				@ capture return pc
 	movs	pc, lr				@ jump to next instruction &
 						@ switch modes.
+1:
 	.endm
 
 	.macro get_bad_stack_swi
