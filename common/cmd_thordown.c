@@ -76,6 +76,12 @@ exit:
 	board_usb_cleanup(controller_index, USB_INIT_DEVICE);
 done:
 	dfu_free_entities();
+bad_args:
+	if (argc == 1) {
+		free(usb_controller);
+		free(interface);
+		free(devstring);
+	}
 
 bad_args:
 	if (argc == 1) {
