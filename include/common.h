@@ -42,6 +42,7 @@ typedef volatile unsigned char	vu_char;
 #include <linux/stringify.h>
 #include <asm/ptrace.h>
 #include <stdarg.h>
+#include <linux/kernel.h>
 #if defined(CONFIG_PCI) && (defined(CONFIG_4xx) && !defined(CONFIG_AP1000))
 #include <pci.h>
 #endif
@@ -207,46 +208,8 @@ typedef void (interrupt_handler_t)(void *);
 
 #endif /* CONFIG_SERIAL_MULTI */
 
-/*
- * General Purpose Utilities
- */
-#define min(X, Y)				\
-	({ typeof (X) __x = (X);		\
-		typeof (Y) __y = (Y);		\
-		(__x < __y) ? __x : __y; })
-
-#define max(X, Y)				\
-	({ typeof (X) __x = (X);		\
-		typeof (Y) __y = (Y);		\
-		(__x > __y) ? __x : __y; })
-
 #define MIN(x, y)  min(x, y)
 #define MAX(x, y)  max(x, y)
-
-/*
- * Return the absolute value of a number.
- *
- * This handles unsigned and signed longs, ints, shorts and chars.  For all
- * input types abs() returns a signed long.
- *
- * For 64-bit types, use abs64()
- */
-#define abs(x) ({						\
-		long ret;					\
-		if (sizeof(x) == sizeof(long)) {		\
-			long __x = (x);				\
-			ret = (__x < 0) ? -__x : __x;		\
-		} else {					\
-			int __x = (x);				\
-			ret = (__x < 0) ? -__x : __x;		\
-		}						\
-		ret;						\
-	})
-
-#define abs64(x) ({				\
-		s64 __x = (x);			\
-		(__x < 0) ? -__x : __x;		\
-	})
 
 #if defined(CONFIG_ENV_IS_EMBEDDED)
 #define TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
@@ -257,17 +220,6 @@ typedef void (interrupt_handler_t)(void *);
 #else
 #define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
 #endif
-
-/**
- * container_of - cast a member of a structure out to the containing structure
- * @ptr:	the pointer to the member.
- * @type:	the type of the container struct this is embedded in.
- * @member:	the name of the member within the struct.
- *
- */
-#define container_of(ptr, type, member) ({			\
-	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
-	(type *)( (char *)__mptr - offsetof(type,member) );})
 
 /*
  * Function Prototypes
@@ -903,15 +855,8 @@ static inline void unmap_sysmem(const void *vaddr)
 #error Read section CONFIG_SKIP_LOWLEVEL_INIT in README.
 #endif
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
 #define ROUND(a,b)		(((a) + (b) - 1) & ~((b) - 1))
 #define DIV_ROUND(n,d)		(((n) + ((d)/2)) / (d))
-#define DIV_ROUND_UP(n,d)	(((n) + (d) - 1) / (d))
-#define roundup(x, y)		((((x) + ((y) - 1)) / (y)) * (y))
-
-#define ALIGN(x,a)		__ALIGN_MASK((x),(typeof(x))(a)-1)
-#define __ALIGN_MASK(x,mask)	(((x)+(mask))&~(mask))
 
 /*
  * ARCH_DMA_MINALIGN is defined in asm/cache.h for each architecture.  It
