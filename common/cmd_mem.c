@@ -33,6 +33,7 @@
 #include <dataflash.h>
 #endif
 #include <hash.h>
+#include <mapmem.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <linux/compiler.h>

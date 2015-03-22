@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <spi_flash.h>
 
 #include <asm/io.h>

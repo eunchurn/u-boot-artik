@@ -42,6 +42,7 @@
 #include <rtc.h>
 
 #include <image.h>
+#include <mapmem.h>
 
 #if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
 #include <fdt.h>

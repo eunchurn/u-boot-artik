@@ -35,6 +35,7 @@
 #include <command.h>
 #include <image.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <asm/byteorder.h>
 #if defined(CONFIG_8xx)
 #include <mpc8xx.h>

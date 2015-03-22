@@ -32,6 +32,7 @@
 #include <asm/byteorder.h>
 #include <fdt.h>
 #include <libfdt.h>
+#include <mapmem.h>
 #include <fdt_support.h>
 #include <asm/bootm.h>
 

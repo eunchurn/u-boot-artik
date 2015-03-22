@@ -39,6 +39,7 @@
 #include <post.h>
 #endif
 #include <lcd.h>
+#include <mapmem.h>
 #include <watchdog.h>
 
 #if defined(CONFIG_CPU_PXA25X) || defined(CONFIG_CPU_PXA27X) || \

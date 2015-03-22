@@ -46,6 +46,7 @@
 #include <search.h>
 #include <errno.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <watchdog.h>
 #include <serial.h>
 #include <linux/stddef.h>

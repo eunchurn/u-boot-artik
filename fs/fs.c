@@ -16,6 +16,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <mapmem.h>
 #include <part.h>
 #include <ext4fs.h>
 #include <fat.h>

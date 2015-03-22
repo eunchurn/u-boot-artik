@@ -32,6 +32,7 @@
 #include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <mapmem.h>
 
 #define MAX_LEVEL	32		/* how deeply nested we will go */
 #define SCRATCHPAD	1024		/* bytes of scratchpad memory */

@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <mapmem.h>
 #include <u-boot/md5.h>
 
 static int do_md5sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
