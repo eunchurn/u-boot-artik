@@ -689,10 +689,11 @@ int dwc3_uboot_init(struct dwc3_device *dwc3_dev)
 		return -ENOMEM;
 	}
 
-	if (IS_ENABLED(CONFIG_USB_DWC3_HOST))
-		dwc->dr_mode = USB_DR_MODE_HOST;
-	else if (IS_ENABLED(CONFIG_USB_DWC3_GADGET))
-		dwc->dr_mode = USB_DR_MODE_PERIPHERAL;
+#if defined(CONFIG_USB_DWC3_HOST)
+	dwc->dr_mode = USB_DR_MODE_HOST;
+#elif defined(CONFIG_USB_DWC3_GADGET)
+	dwc->dr_mode = USB_DR_MODE_PERIPHERAL;
+#endif
 
 	if (dwc->dr_mode == USB_DR_MODE_UNKNOWN)
 		dwc->dr_mode = USB_DR_MODE_OTG;
