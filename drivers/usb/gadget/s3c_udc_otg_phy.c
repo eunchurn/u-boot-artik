@@ -63,6 +63,10 @@ void otg_phy_init(struct s3c_udc *dev)
 		writel((readl(&phy->phyclk) & ~(EXYNOS4X12_ID_PULLUP0 |
 			EXYNOS4X12_COMMON_ON_N0)) | EXYNOS4X12_CLK_SEL_24MHZ,
 		       &phy->phyclk); /* PLL 24Mhz */
+	else if (s5p_cpu_id == 0x3250)
+		writel((readl(&phy->phyclk) & ~(EXYNOS4X12_ID_PULLUP0 |
+			EXYNOS4X12_COMMON_ON_N0 | EXYNOS4X12_CLK_SEL_MSK)) |
+			EXYNOS4X12_CLK_SEL_24MHZ, &phy->phyclk); /* PLL 24Mhz */
 	else
 		writel((readl(&phy->phyclk) & ~(ID_PULLUP0 | COMMON_ON_N0)) |
 		       CLK_SEL_24MHZ, &phy->phyclk); /* PLL 24Mhz */
