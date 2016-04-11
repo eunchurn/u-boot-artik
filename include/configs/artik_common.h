@@ -151,6 +151,37 @@
 #define CONFIG_FASTBOOT_AUTO_REBOOT
 #define CONFIG_FASTBOOT_AUTO_REBOOT_MODE	0x3
 
+/* DWC3 */
+#define CONFIG_USB_DWC3
+#define CONFIG_USB_DWC3_GADGET
+#define CONFIG_USB_DWC3_PHY_SAMSUNG
+
+/* USB gadget */
+#define CONFIG_USB_GADGET
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
+
+/* Downloader */
+#define CONFIG_G_DNL_VENDOR_NUM		0x04E8
+#define CONFIG_G_DNL_PRODUCT_NUM	0x6601
+#define CONFIG_G_DNL_MANUFACTURER	"Samsung"
+#define CONFIG_USBDOWNLOAD_GADGET
+
+#define CONFIG_SYS_CACHELINE_SIZE	64
+
+/* DFU */
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_DFU_MMC
+#define CONFIG_CMD_DFU
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x02000000
+#define DFU_DEFAULT_POLL_TIMEOUT	300
+
+/* THOR */
+#define CONFIG_G_DNL_THOR_VENDOR_NUM	CONFIG_G_DNL_VENDOR_NUM
+#define CONFIG_G_DNL_THOR_PRODUCT_NUM	0x685D
+#define CONFIG_THOR_FUNCTION
+#define CONFIG_CMD_THOR_DOWNLOAD
+
 #define CONFIG_SPL
 #define SDMMC_DEV_OFFSET			0x00000000
 #define EMMC_DEV_OFFSET				0x00000014
@@ -216,8 +247,6 @@
 #define CONFIG_CMD_MOVINAND
 #define CONFIG_CMD_BOOTZ
 
-#define CONFIG_OF_LIBFDT
-
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
@@ -230,7 +259,8 @@
 #include <asm/arch/movi_partition.h>
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20) +	\
+					CONFIG_SYS_DFU_DATA_BUF_SIZE * 2)
 
 /* Configuration of ROOTFS_ATAGS */
 #define CONFIG_ROOTFS_ATAGS
@@ -244,6 +274,20 @@
 #define CONFIG_BOOT_PART	1
 #define CONFIG_MODULE_PART	2
 #define CONFIG_ROOT_PART	3
+
+#define CONFIG_DFU_ALT_SYSTEM               \
+	"uImage fat 0 1;"                   \
+	"zImage fat 0 1;"                   \
+	"uInitrd fat 0 1;"                  \
+	"boot.scr fat 0 1;"                 \
+	"boot.cmd fat 0 1;"                 \
+	"exynos5422-artik10.dtb fat 0 1;" \
+	"exynos3250-artik5.dtb fat 0 1;" \
+	"boot part 0 1;" \
+	"modules part 0 2;" \
+	"rootfs part 0 3;" \
+	"system-data part 0 4;" \
+	"user part 0 5\0"
 
 #define PARTS_DEFAULT							\
 	"uuid_disk=${uuid_gpt_disk};"					\
@@ -292,6 +336,7 @@
 	"fdtaddr=40800000\0"						\
 	"initrd_file=uInitrd\0"						\
 	"initrd_addr=43000000\0"					\
+	"dfu_alt_info=" CONFIG_DFU_ALT_SYSTEM				\
 	"sdrecovery=sdfuse format; sdfuse flashall 3\0"			\
 	"factory_load=factory_info load mmc ${emmc_dev} 0x80 0x8\0"	\
 	"factory_save=factory_info save mmc ${emmc_dev} 0x80 0x8\0"	\
