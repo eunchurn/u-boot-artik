@@ -277,6 +277,9 @@
 #define CONFIG_MODULE_PART	2
 #define CONFIG_ROOT_PART	3
 
+#define CONFIG_SET_DFU_ALT_INFO
+#define CONFIG_SET_DFU_ALT_BUF_LEN	(1 << 10)	/* 1 KB */
+
 #define CONFIG_DFU_ALT_SYSTEM               \
 	"uImage fat 0 1;"                   \
 	"zImage fat 0 1;"                   \
@@ -290,6 +293,38 @@
 	"rootfs part 0 3;" \
 	"system-data part 0 4;" \
 	"user part 0 5\0"
+
+#ifdef CONFIG_MACH_ARTIK5
+#define CONFIG_DFU_ALT_BOOT_EMMC		\
+	"u-boot raw 0x3e 0x290 mmcpart 1;"	\
+	"bl1 raw 0x0 0x1e mmcpart 1;"		\
+	"bl2 raw 0x1e 0x20 mmcpart 1;"		\
+	"tzsw raw 0x2ce 0x138 mmcpart 1;"	\
+	"params raw 0x406 0x20 \0"
+
+#define CONFIG_DFU_ALT_BOOT_SD			\
+	"u-boot raw 0x3e 0x290;"		\
+	"bl1 raw 0x0 0x1e;"			\
+	"bl2 raw 0x1e 0x20;"			\
+	"tzsw raw 0x2ce 0x138;"			\
+	"params raw 0x406 0x20\0"
+#endif
+
+#ifdef CONFIG_MACH_ARTIK10
+#define CONFIG_DFU_ALT_BOOT_EMMC		\
+	"u-boot raw 0x3e 0x290 mmcpart 1;"	\
+	"bl1 raw 0x0 0x1e mmcpart 1;"		\
+	"bl2 raw 0x1e 0x20 mmcpart 1;"		\
+	"tzsw raw 0x2ce 0x200 mmcpart 1;"	\
+	"params raw 0x4ce 0x20 \0"
+
+#define CONFIG_DFU_ALT_BOOT_SD			\
+	"u-boot raw 0x3e 0x290;"		\
+	"bl1 raw 0x0 0x1e;"			\
+	"bl2 raw 0x1e 0x20;"			\
+	"tzsw raw 0x2ce 0x200;"			\
+	"params raw 0x4ce 0x20\0"
+#endif
 
 #define PARTS_DEFAULT							\
 	"uuid_disk=${uuid_gpt_disk};"					\
@@ -338,7 +373,10 @@
 	"fdtaddr=40800000\0"						\
 	"initrd_file=uInitrd\0"						\
 	"initrd_addr=43000000\0"					\
-	"dfu_alt_info=" CONFIG_DFU_ALT_SYSTEM				\
+	"dfu_alt_system=" CONFIG_DFU_ALT_SYSTEM			\
+	"dfu_usb_con=0\0"						\
+	"dfu_interface=mmc\0"						\
+	"dfu_device=${emmc_dev}\0"					\
 	"sdrecovery=sdfuse format; sdfuse flashall 3\0"			\
 	"factory_load=factory_info load mmc ${emmc_dev} 0x80 0x8\0"	\
 	"factory_save=factory_info save mmc ${emmc_dev} 0x80 0x8\0"	\

@@ -32,6 +32,7 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/sromc.h>
 #include <asm/arch/sysreg.h>
+#include <mmc.h>
 #include "pmic.h"
 
 #define DEBOUNCE_DELAY	10000
@@ -602,3 +603,71 @@ int board_late_init(void)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_SET_DFU_ALT_INFO
+char *get_dfu_alt_system(char *interface, char *devstr)
+{
+	return getenv("dfu_alt_system");
+}
+
+char *get_dfu_alt_boot(char *interface, char *devstr)
+{
+	struct mmc *mmc;
+	char *alt_boot;
+	int dev_num;
+
+	dev_num = simple_strtoul(devstr, NULL, 10);
+
+	mmc = find_mmc_device(dev_num);
+	if (!mmc)
+		return NULL;
+
+	if (mmc_init(mmc))
+		return NULL;
+
+	if (IS_SD(mmc))
+		alt_boot = CONFIG_DFU_ALT_BOOT_SD;
+	else
+		alt_boot = CONFIG_DFU_ALT_BOOT_EMMC;
+
+	return alt_boot;
+}
+
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	size_t buf_size = CONFIG_SET_DFU_ALT_BUF_LEN;
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, buf_size);
+	char *alt_info = "Settings not found!";
+	char *status = "error!\n";
+	char *alt_setting;
+	char *alt_sep;
+	int offset = 0;
+
+	puts("DFU alt info setting: ");
+
+	alt_setting = get_dfu_alt_boot(interface, devstr);
+	if (alt_setting) {
+		setenv("dfu_alt_boot", alt_setting);
+		offset = snprintf(buf, buf_size, "%s", alt_setting);
+	}
+
+	alt_setting = get_dfu_alt_system(interface, devstr);
+	if (alt_setting) {
+		if (offset)
+			alt_sep = ";";
+		else
+			alt_sep = "";
+
+		offset += snprintf(buf + offset, buf_size - offset,
+				    "%s%s", alt_sep, alt_setting);
+	}
+
+	if (offset) {
+		alt_info = buf;
+		status = "done\n";
+	}
+
+	setenv("dfu_alt_info", alt_info);
+	puts(status);
+}
+#endif
