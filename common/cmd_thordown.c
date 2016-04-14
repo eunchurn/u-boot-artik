@@ -82,13 +82,6 @@ bad_args:
 		free(interface);
 		free(devstring);
 	}
-
-bad_args:
-	if (argc == 1) {
-		free(usb_controller);
-		free(interface);
-		free(devstring);
-	}
 	return ret;
 }
 
