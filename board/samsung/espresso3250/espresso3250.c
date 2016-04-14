@@ -32,6 +32,9 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/sromc.h>
 #include <asm/arch/sysreg.h>
+#include <asm/unaligned.h>
+#include <usb.h>
+#include <usb/s3c_udc.h>
 #include <mmc.h>
 #include "pmic.h"
 
@@ -603,6 +606,48 @@ int board_late_init(void)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_USB_GADGET
+static int s5p_phy_control(int on)
+{
+	return 0;
+}
+
+struct s3c_plat_otg_data s5p_otg_data = {
+	.phy_control	= s5p_phy_control,
+	.regs_phy	= EXYNOS4_USBPHY_BASE,
+	.regs_otg	= EXYNOS4_USBOTG_BASE,
+	.usb_phy_ctrl	= EXYNOS4_USBPHY_CONTROL,
+	.usb_flags	= PHY0_SLEEP,
+};
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	return s3c_udc_probe(&s5p_otg_data);
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_USBDOWNLOAD_GADGET
+int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
+{
+	if (!strcmp(name, "usb_dnl_thor")) {
+		put_unaligned(CONFIG_G_DNL_THOR_VENDOR_NUM, &dev->idVendor);
+		put_unaligned(CONFIG_G_DNL_THOR_PRODUCT_NUM, &dev->idProduct);
+	} else if (!strcmp(name, "usb_dnl_ums")) {
+		put_unaligned(CONFIG_G_DNL_UMS_VENDOR_NUM, &dev->idVendor);
+		put_unaligned(CONFIG_G_DNL_UMS_PRODUCT_NUM, &dev->idProduct);
+	} else {
+		put_unaligned(CONFIG_G_DNL_VENDOR_NUM, &dev->idVendor);
+		put_unaligned(CONFIG_G_DNL_PRODUCT_NUM, &dev->idProduct);
+	}
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_SET_DFU_ALT_INFO
 char *get_dfu_alt_system(char *interface, char *devstr)
