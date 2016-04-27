@@ -290,19 +290,33 @@
 #define CONFIG_SET_DFU_ALT_INFO
 #define CONFIG_SET_DFU_ALT_BUF_LEN	(1 << 10)	/* 1 KB */
 
-#define CONFIG_DFU_ALT_SYSTEM               \
-	"uImage fat 0 1;"                   \
-	"zImage fat 0 1;"                   \
-	"uInitrd fat 0 1;"                  \
-	"boot.scr fat 0 1;"                 \
-	"boot.cmd fat 0 1;"                 \
-	"exynos5422-artik10.dtb fat 0 1;" \
-	"exynos3250-artik5.dtb fat 0 1;" \
-	"boot part 0 1;" \
-	"modules part 0 2;" \
-	"rootfs part 0 3;" \
-	"system-data part 0 4;" \
+#define CONFIG_DFU_ALT_SYSTEM			\
+	"uImage fat 0 1;"			\
+	"zImage fat 0 1;"			\
+	"uInitrd fat 0 1;"			\
+	"boot.scr fat 0 1;"			\
+	"boot.cmd fat 0 1;"			\
+	"exynos5422-artik10.dtb fat 0 1;"	\
+	"exynos3250-artik5.dtb fat 0 1;"	\
+	"boot part 0 1;"			\
+	"modules part 0 2;"			\
+	"rootfs part 0 3;"			\
+	"system-data part 0 4;"			\
 	"user part 0 5\0"
+
+#define CONFIG_DFU_ALT_SYSTEM_SD		\
+	"uImage fat 0 1;"			\
+	"zImage fat 0 1;"			\
+	"uInitrd fat 0 1;"			\
+	"boot.scr fat 0 1;"			\
+	"boot.cmd fat 0 1;"			\
+	"exynos5422-artik10.dtb fat 0 1;"	\
+	"exynos3250-artik5.dtb fat 0 1;"	\
+	"boot part 0 1;"			\
+	"modules part 0 2;"			\
+	"rootfs part 0 3;"			\
+	"system-data part 0 5;"			\
+	"user part 0 6\0"
 
 #ifdef CONFIG_MACH_ARTIK5
 #define CONFIG_DFU_ALT_BOOT_EMMC		\
@@ -383,7 +397,7 @@
 	"fdtaddr=40800000\0"						\
 	"initrd_file=uInitrd\0"						\
 	"initrd_addr=43000000\0"					\
-	"dfu_alt_system=" CONFIG_DFU_ALT_SYSTEM			\
+	"dfu_alt_system=" CONFIG_DFU_ALT_SYSTEM				\
 	"dfu_usb_con=0\0"						\
 	"dfu_interface=mmc\0"						\
 	"dfu_device=${emmc_dev}\0"					\

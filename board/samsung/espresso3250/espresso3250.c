@@ -652,6 +652,11 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 #ifdef CONFIG_SET_DFU_ALT_INFO
 char *get_dfu_alt_system(char *interface, char *devstr)
 {
+	char *rootdev = getenv("rootdev");
+
+	if (rootdev != NULL && rootdev[0] == '1')
+		setenv("dfu_alt_system", CONFIG_DFU_ALT_SYSTEM_SD);
+
 	return getenv("dfu_alt_system");
 }
 
