@@ -247,7 +247,7 @@
 
 #define PARTS_DEFAULT							\
 	"uuid_disk=${uuid_gpt_disk};"					\
-	"name=boot,start=1MiB,size=" __stringify(CONFIG_BOOT_PART_SIZE) \
+	"name=boot,start=4MiB,size=" __stringify(CONFIG_BOOT_PART_SIZE) \
 		"MiB,uuid=${uuid_gpt_boot};"				\
 	"name=modules,size=" __stringify(CONFIG_MODULE_PART_SIZE)	\
 		"MiB,uuid=${uuid_gpt_module};"				\
@@ -255,7 +255,7 @@
 
 #define PARTS_TIZEN							\
 	"uuid_disk=${uuid_gpt_disk};"					\
-	"name=boot,start=1MiB,size=" __stringify(CONFIG_BOOT_PART_SIZE) \
+	"name=boot,start=4MiB,size=" __stringify(CONFIG_BOOT_PART_SIZE) \
 		"MiB,uuid=${uuid_gpt_boot};"				\
 	"name=modules,size=" __stringify(CONFIG_MODULE_PART_SIZE)	\
 		"MiB,uuid=${uuid_gpt_module};"				\
@@ -265,7 +265,7 @@
 
 #define PARTS_ANDROID							\
 	"uuid_disk=${uuid_gpt_disk};"					\
-	"name=boot,start=1MiB,size=" __stringify(CONFIG_BOOT_PART_SIZE) \
+	"name=boot,start=4MiB,size=" __stringify(CONFIG_BOOT_PART_SIZE) \
 		"MiB,uuid=${uuid_gpt_boot};"				\
 	"name=system,size=1024MiB,uuid=${uuid_gpt_system};"		\
 	"name=cache,size=128MiB,uuid=${uuid_gpt_cache};"		\
