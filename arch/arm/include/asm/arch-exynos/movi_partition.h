@@ -46,11 +46,15 @@
 #define PART_SIZE_ROOTFS	(26 * 1024 * 1024)
 #endif /* CONFIG_ROOTFS_PART_SIZE */
 
+#if defined(CONFIG_MACH_ARTIK5)
+#define PART_SIZE_TZSW		(1024 * 1024)
+#else
 #if defined(CONFIG_EXYNOS4X12) || defined(CONFIG_CPU_EXYNOS5250) || defined(CONFIG_CPU_EXYNOS3250)
 #define PART_SIZE_TZSW		(156 * 1024)
 #else
 #define PART_SIZE_TZSW		(256 * 1024)
 #endif
+#endif	/* CONFIG_MACH_ARTIK5 */
 
 #if defined(CONFIG_BOOT_LOGO)
 #define PART_SIZE_BOOT_LOGO	(4 * 1024 * 1024)
