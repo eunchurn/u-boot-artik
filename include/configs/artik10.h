@@ -67,7 +67,7 @@
 #define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_EXYNOS
-#undef CONFIG_USB_STORAGE
+#define CONFIG_USB_STORAGE
 
 /* OHCI : Host 1.0 */
 #define CONFIG_USB_OHCI
