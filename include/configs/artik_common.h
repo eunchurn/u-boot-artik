@@ -274,7 +274,8 @@
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20) +	\
-					CONFIG_SYS_DFU_DATA_BUF_SIZE * 4)
+					CONFIG_SYS_DFU_DATA_BUF_SIZE * 2 + \
+					(2 << 20))
 
 /* Configuration of ROOTFS_ATAGS */
 #define CONFIG_ROOTFS_ATAGS
