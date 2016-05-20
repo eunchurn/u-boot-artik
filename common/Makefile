@@ -212,6 +212,7 @@ endif
 COBJS-y += console.o
 COBJS-y += dlmalloc.o
 COBJS-y += image.o
+COBJS-$(CONFIG_FIT) += image-fit.o
 COBJS-y += memsize.o
 COBJS-y += stdio.o
 
