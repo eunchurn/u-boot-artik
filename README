@@ -2700,6 +2700,13 @@ FIT uImage format:
 		CONFIG_SPL_LIBGENERIC_SUPPORT
 		Support for lib/libgeneric.o in SPL binary
 
+		CONFIG_FIT_SPL_PRINT
+		Printing information about a FIT image adds quite a bit of
+		code to SPL. So this is normally disabled in SPL. Use this
+		option to re-enable it. This will affect the output of the
+		bootm command when booting a FIT image.
+
+
 Modem Support:
 --------------
 
