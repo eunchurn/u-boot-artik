@@ -149,15 +149,10 @@ void fit_print_contents(const void *fit)
 	int count = 0;
 	int ret;
 	const char *p;
-#if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
 	time_t timestamp;
-#endif
 
-#ifdef USE_HOSTCC
-	p = "";
-#else
-	p = "   ";
-#endif
+	/* Indent string is defined in header image.h */
+	p = IMAGE_INDENT_STRING;
 
 	/* Root node properties */
 	ret = fit_get_desc(fit, 0, &desc);
@@ -1330,7 +1325,6 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
  *     1, on success
  *     0, on failure
  */
-#ifndef USE_HOSTCC
 int fit_check_ramdisk(const void *fit, int rd_noffset, uint8_t arch,
 				int verify)
 {
@@ -1359,4 +1353,3 @@ int fit_check_ramdisk(const void *fit, int rd_noffset, uint8_t arch,
 	bootstage_mark(BOOTSTAGE_ID_FIT_RD_CHECK_ALL_OK);
 	return 1;
 }
-#endif /* USE_HOSTCC */

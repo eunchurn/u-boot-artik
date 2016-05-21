@@ -216,10 +216,10 @@ ulong timer_get_boot_us(void);
  * @param val	Progress state (enum bootstage_id), or -id if an error
  *		has occurred.
  */
-void show_boot_progress(int val);
 
 #ifdef CONFIG_BOOTSTAGE
 /* This is the full bootstage implementation */
+void show_boot_progress(int val);
 
 /*
  * Mark a time stamp for the current boot stage.
@@ -238,7 +238,7 @@ void bootstage_report(void);
  * This is a dummy implementation which just calls show_boot_progress(),
  * and won't even do that unless CONFIG_SHOW_BOOT_PROGRESS is defined
  */
-
+static inline void show_boot_progress(int val) {}
 static inline ulong bootstage_mark(enum bootstage_id id)
 {
 	show_boot_progress(id);
