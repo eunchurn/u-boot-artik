@@ -749,6 +749,34 @@ int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 }
 
 /**
+ * fit_image_hash_get_ignore - get hash ignore flag
+ * @fit: pointer to the FIT format image header
+ * @noffset: hash node offset
+ * @ignore: pointer to an int, will hold hash ignore flag
+ *
+ * fit_image_hash_get_ignore() finds hash ignore property in a given hash node.
+ * If the property is found and non-zero, the hash algorithm is not verified by
+ * u-boot automatically.
+ *
+ * returns:
+ *     0, on ignore not found
+ *     value, on ignore found
+ */
+int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore)
+{
+	int len;
+	int *value;
+
+	value = (int *)fdt_getprop(fit, noffset, FIT_IGNORE_PROP, &len);
+	if (value == NULL || len != sizeof(int))
+		*ignore = 0;
+	else
+		*ignore = *value;
+
+	return 0;
+}
+
+/**
  * fit_set_timestamp - set node timestamp property
  * @fit: pointer to the FIT format image header
  * @noffset: node offset
@@ -838,6 +866,9 @@ int fit_image_verify(const void *fit, int image_noffset)
 	char		*algo;
 	uint8_t		*fit_value;
 	int		fit_value_len;
+#ifndef USE_HOSTCC
+	int		ignore;
+#endif
 	uint8_t		value[FIT_MAX_HASH_LEN];
 	int		value_len;
 	int		noffset;
@@ -873,6 +904,14 @@ int fit_image_verify(const void *fit, int image_noffset)
 				goto error;
 			}
 			printf("%s", algo);
+
+#ifndef USE_HOSTCC
+			fit_image_hash_get_ignore(fit, noffset, &ignore);
+			if (ignore) {
+				printf("-skipped ");
+				continue;
+			}
+#endif
 
 			if (fit_image_hash_get_value(fit, noffset, &fit_value,
 							&fit_value_len)) {
