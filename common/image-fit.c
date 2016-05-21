@@ -992,11 +992,11 @@ int fit_image_hash_set_value(void *fit, int noffset, uint8_t *value,
 #endif /* USE_HOSTCC */
 
 /**
- * fit_image_check_hashes - verify data intergity
+ * fit_image_verify - verify data intergity
  * @fit: pointer to the FIT format image header
  * @image_noffset: component image node offset
  *
- * fit_image_check_hashes() goes over component image hash nodes,
+ * fit_image_verify() goes over component image hash nodes,
  * re-calculates each data hash and compares with the value stored in hash
  * node.
  *
@@ -1004,7 +1004,7 @@ int fit_image_hash_set_value(void *fit, int noffset, uint8_t *value,
  *     1, if all hashes are valid
  *     0, otherwise (or on error)
  */
-int fit_image_check_hashes(const void *fit, int image_noffset)
+int fit_image_verify(const void *fit, int image_noffset)
 {
 	const void	*data;
 	size_t		size;
@@ -1082,17 +1082,17 @@ error:
 }
 
 /**
- * fit_all_image_check_hashes - verify data intergity for all images
+ * fit_all_image_verify - verify data intergity for all images
  * @fit: pointer to the FIT format image header
  *
- * fit_all_image_check_hashes() goes over all images in the FIT and
+ * fit_all_image_verify() goes over all images in the FIT and
  * for every images checks if all it's hashes are valid.
  *
  * returns:
  *     1, if all hashes of all images are valid
  *     0, otherwise (or on error)
  */
-int fit_all_image_check_hashes(const void *fit)
+int fit_all_image_verify(const void *fit)
 {
 	int images_noffset;
 	int noffset;
@@ -1121,8 +1121,7 @@ int fit_all_image_check_hashes(const void *fit)
 			 */
 			printf("   Hash(es) for Image %u (%s): ", count++,
 					fit_get_name(fit, noffset, NULL));
-
-			if (!fit_image_check_hashes(fit, noffset))
+			if (!fit_image_verify(fit, noffset))
 				return 0;
 			printf("\n");
 		}
@@ -1442,8 +1441,8 @@ int fit_check_ramdisk(const void *fit, int rd_noffset, uint8_t arch,
 	fit_image_print(fit, rd_noffset, "   ");
 
 	if (verify) {
+		if (!fit_image_verify(fit, rd_noffset)) {
 		puts("   Verifying Hash Integrity ... ");
-		if (!fit_image_check_hashes(fit, rd_noffset)) {
 			puts("Bad Data Hash\n");
 			bootstage_error(BOOTSTAGE_ID_FIT_RD_HASH);
 			return 0;
