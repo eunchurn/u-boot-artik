@@ -31,6 +31,24 @@
 #define CONFIG_BOOTSTAGE_USER_COUNT	20
 #endif
 
+/* bootstate sub-IDs used for kernel and ramdisk ranges */
+enum {
+	BOOTSTAGE_SUB_FORMAT,
+	BOOTSTAGE_SUB_FORMAT_OK,
+	BOOTSTAGE_SUB_NO_UNIT_NAME,
+	BOOTSTAGE_SUB_UNIT_NAME,
+	BOOTSTAGE_SUB_SUBNODE,
+
+	BOOTSTAGE_SUB_CHECK,
+	BOOTSTAGE_SUB_HASH = 5,
+	BOOTSTAGE_SUB_CHECK_ARCH = 5,
+	BOOTSTAGE_SUB_CHECK_ALL,
+	BOOTSTAGE_SUB_GET_DATA,
+	BOOTSTAGE_SUB_CHECK_ALL_OK = 7,
+	BOOTSTAGE_SUB_GET_DATA_OK,
+	BOOTSTAGE_SUB_LOAD,
+};
+
 /*
  * A list of boot stages that we know about. Each of these indicates the
  * state that we are at, and the action that we are about to perform. For
@@ -130,11 +148,13 @@ enum bootstage_id {
 	BOOTSTAGE_ID_NET_LOADED,
 	BOOTSTAGE_ID_NET_DONE_ERR,
 	BOOTSTAGE_ID_NET_DONE,
-
+	
+	BOOTSTAGE_ID_FIT_FDT_START = 90,
 	/*
 	 * Boot stages related to loading a FIT image. Some of these are a
 	 * bit wonky.
 	 */
+	BOOTSTAGE_ID_FIT_KERNEL_START = 100,
 	BOOTSTAGE_ID_FIT_FORMAT = 100,
 	BOOTSTAGE_ID_FIT_NO_UNIT_NAME,
 	BOOTSTAGE_ID_FIT_UNIT_NAME,
@@ -155,6 +175,8 @@ enum bootstage_id {
 	BOOTSTAGE_ID_FIT_LOADADDR,
 	BOOTSTAGE_ID_OVERWRITTEN,
 
+	/* Next 10 IDs used by BOOTSTAGE_SUB_...*/
+	BOOTSTAGE_ID_FIT_RD_START = 120,
 	BOOTSTAGE_ID_FIT_RD_FORMAT = 120,
 	BOOTSTAGE_ID_FIT_RD_FORMAT_OK,
 	BOOTSTAGE_ID_FIT_RD_NO_UNIT_NAME,
@@ -217,9 +239,10 @@ ulong timer_get_boot_us(void);
  *		has occurred.
  */
 
+void show_boot_progress(int val);
+
 #ifdef CONFIG_BOOTSTAGE
 /* This is the full bootstage implementation */
-void show_boot_progress(int val);
 
 /*
  * Mark a time stamp for the current boot stage.
@@ -238,24 +261,19 @@ void bootstage_report(void);
  * This is a dummy implementation which just calls show_boot_progress(),
  * and won't even do that unless CONFIG_SHOW_BOOT_PROGRESS is defined
  */
-static inline void show_boot_progress(int val) {}
 static inline ulong bootstage_mark(enum bootstage_id id)
 {
-	show_boot_progress(id);
 	return 0;
 }
 
 static inline ulong bootstage_error(enum bootstage_id id)
 {
-	show_boot_progress(-id);
 	return 0;
 }
 
 static inline ulong bootstage_mark_name(enum bootstage_id id, const char *name)
 {
-	return 0;
 }
-
 
 #endif /* CONFIG_BOOTSTAGE */
 
