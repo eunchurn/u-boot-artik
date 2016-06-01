@@ -351,6 +351,7 @@
 	"fdtfile=" CONFIG_FDT_FILE "\0"					\
 	"kernel_file=zImage\0"						\
 	"kernel_addr=40008000\0"					\
+	"vboot_kernel_addr=42000000\0"					\
 	"fdtaddr=40800000\0"						\
 	"initrd_file=uInitrd\0"						\
 	"initrd_addr=43000000\0"					\
@@ -371,6 +372,9 @@
 		"fatload mmc 0:1 $fdtaddr $fdtfile;"			\
 		"fatload mmc 0:1 $initrd_addr $initrd_file;"		\
 		"bootz $kernel_addr $initrd_addr $fdtaddr\0"		\
+	"boot_cmd_vboot=fatload mmc 0:1 $vboot_kernel_addr $kernel_file;"	\
+		"fatload mmc 0:1 $initrd_addr $initrd_file;"		\
+		"bootm $vboot_kernel_addr $initrd_addr\0"		\
 	"android_boot="							\
 		"setenv bootargs ${console} root=/dev/ram0 "		\
 		"${opts};"						\
@@ -382,11 +386,14 @@
 		"mmc rescan; fastboot\0"				\
 	"recoveryboot=run sdrecovery; setenv recoverymode recovery;"	\
 		"run ramfsboot\0"					\
+	"recoveryvboot=run sdrecovery; setenv recoverymode recovery;"	\
+		"run vboot\0"						\
 	"load_args=run factory_load; setenv bootargs ${console} "	\
 		"root=/dev/mmcblk${rootdev}p${rootpart} ${root_rw} "	\
 		"rootfstype=ext4 ${opts} ${recoverymode} "		\
 		"asix.macaddr=${ethaddr} bd_addr=${bd_addr}\0"		\
 	"ramfsboot=run load_args; run boot_cmd_initrd\0"		\
+	"vboot=run load_args; run boot_cmd_vboot\0"			\
 	"mmcboot=run load_args; run boot_cmd\0"				\
 	"bootcmd=run ramfsboot\0"
 
