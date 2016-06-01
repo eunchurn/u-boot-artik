@@ -382,14 +382,12 @@
 		"mmc rescan; fastboot\0"				\
 	"recoveryboot=run sdrecovery; setenv recoverymode recovery;"	\
 		"run ramfsboot\0"					\
-	"ramfsboot=run factory_load; setenv bootargs ${console} "	\
+	"load_args=run factory_load; setenv bootargs ${console} "	\
 		"root=/dev/mmcblk${rootdev}p${rootpart} ${root_rw} "	\
 		"rootfstype=ext4 ${opts} ${recoverymode} "		\
-		"asix.macaddr=${ethaddr} bd_addr=${bd_addr};"		\
-		"run boot_cmd_initrd\0"					\
-	"mmcboot=setenv bootargs ${console} "				\
-		"root=/dev/mmcblk${rootdev}p${rootpart} ${root_rw} "	\
-		"rootfstype=ext4 ${opts};run boot_cmd\0"		\
+		"asix.macaddr=${ethaddr} bd_addr=${bd_addr}\0"		\
+	"ramfsboot=run load_args; run boot_cmd_initrd\0"		\
+	"mmcboot=run load_args; run boot_cmd\0"				\
 	"bootcmd=run ramfsboot\0"
 
 #endif /* __ARTIK_COMMON_H */
