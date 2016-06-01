@@ -46,7 +46,7 @@
 #define PART_SIZE_ROOTFS	(26 * 1024 * 1024)
 #endif /* CONFIG_ROOTFS_PART_SIZE */
 
-#if defined(CONFIG_MACH_ARTIK5)
+#if defined(CONFIG_MACH_ARTIK5) || defined(CONFIG_MACH_ARTIK10)
 #define PART_SIZE_TZSW		(1024 * 1024)
 #else
 #if defined(CONFIG_EXYNOS4X12) || defined(CONFIG_CPU_EXYNOS5250) || defined(CONFIG_CPU_EXYNOS3250)
