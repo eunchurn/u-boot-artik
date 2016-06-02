@@ -32,26 +32,17 @@ The steps are roughly as follows:
 
 1. Build Environment
 
-2. Enale Verified boot options
+2. Create a key pair
 
-3. Build ARTIK for the board, with the verified boot options enabled.
+3. Build with Verified Boot
 
-4. Create a Image Tree Source file (ITS) file describing how you want the
-kernel to be packaged, compressed and signed.
+4. Put U-Boot and the Kernel onto the board
 
-5. Create a key pair
-
-6. Sign the kernel
-
-7. Put the public key under U-Boot's image
-
-8. Put U-Boot and the kernel onto the board
-
-9. Try it
+5. Try it
 
 
 Step 1: Build Environment(library installation)
---------------------
+-----------------------------------------------
 
 Verified Boot uses openssl library.
 If you see the error log below,
@@ -64,270 +55,57 @@ you need to install libssl-dev using apt-get.
    # sudo apt-get install libssl-dev
 
 
-Step 2: Enable verified boot options
---------------------
-
-First, please add below part into "u-boot-artik/include/configs/artik5.h" file:
-
-/* FDT */
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
-
-/* FIT */
-#define CONFIG_FIT
-
-/* Verified Boot */
-#define CONFIG_FIT_SIGNATURE
-#define CONFIG_RSA
-#define CONFIG_FIT_VERBOSE
-
-/* Device Tree */
-#define CONFIG_ARCH_DEVICE_TREE		skeleton
-#define CONFIG_DEFAULT_DEVICE_TREE	espresso3250_signature
-
-If you see above, this document uses "espresso3250_signature". You could
-change the file name as you want.
-
-Second, please make a file named as above"espresso3250_signature.dts" and put
-the lines below:
-
-/*
- * Samsung's Exynos3250 based ARTIK520 device tree source
- *
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
- *		http://www.samsung.com
- *
- * Device tree source file for Samsung's ARTIK520 which is based on
- * Samsung Exynos3250 SoC.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- */
-
-/dts-v1/;
-
-/ {
-	signature {
-		key-dev {
-			required = "conf";
-			algo = "sha1,rsa2048";
-			key-name-hint = "dev";
-		};
-	};
-};
-
-This file should be "u-boot-artik/arch/arm/dts/"
-
-
-Step 3: Build ARTIK(U-Boot, Kernel, etc.)
---------------------
-
-a. Build ARTIK as guided.
-
-b. You will now have nessary images:
-   file b/u-boot-artik/u-boot.bin
-   file b/u-boot-artik/u-boot.dtb
-   file b/linux-artik/arch/arm/boot/zImage
-
-
-Step 4: Create the ITS
-----------------------
-
-Set up a directory for your work.
-
-   export WORK=/path/to/dir
-   cd $WORK
-
-Copy nessary files into work directory.
-
-   cp b/u-boot-artik/u-boot.bin $WORK/
-   cp b/u-boot-artik/u-boot.dtb $WORK/
-   cp b/linux-artik/arch/arm/boot/zImage $WORK/
-   cp b/linux-artik/arch/arm/boot/dts/exynos3250-artik5.dtb $WORK/
-
-Put this into a file in that directory called kernel_fit_verify.its:
-
-/dts-v1/;
-
-/ {
-		description = "ARTIK520 Image with single Linux kernel and FDT blob";
-#address-cells = <1>;
-
-		images {
-				kernel@1 {
-						description = "Linux kernel";
-						data = /incbin/("./zImage");
-						type = "kernel";
-						arch = "arm";
-						os = "linux";
-						compression = "none";
-						load = <0x40008000>;
-						entry = <0x40008000>;
-						hash@1 {
-								algo = "sha1";
-						};
-						signature@1 {
-								algo = "sha1,rsa2048";
-								key-name-hint = "dev";
-						};
-				};
-
-				fdt@1 {
-						description = "Flattened Device Tree blob";
-						data = /incbin/("./exynos3250-artik5.dtb");
-						type = "flat_dt";
-						arch = "arm";
-						compression = "none";
-						hash@1 {
-								algo = "sha1";
-						};
-						signature@1 {
-								algo = "sha1,rsa2048";
-								key-name-hint = "dev";
-						};
-				};
-		};
-
-		configurations {
-				default = "conf@1";
-				conf@1 {
-						description = "Boot Linux kernel with FDT blob";
-						kernel = "kernel@1";
-						fdt = "fdt@1";
-				};
-		};
-};
-
-The explanation for this is all in the documentation you have already read.
-But briefly it packages a kernel and device tree, and provides a single
-configuration to be signed with a key named 'dev'. The kernel is compressed
-with LZO to make it smaller.
-
-
-Step 5: Create a key pair
+Step 2: Create a key pair
 -------------------------
 
 See signature.txt for details on this step.
+Goto your working directory.
 
-   cd $WORK
    mkdir keys
+   export KEYF=`pwd`/keys
    openssl genrsa -F4 -out keys/dev.key 2048
    openssl req -batch -new -x509 -key keys/dev.key -out keys/dev.crt
 
-Note: keys/dev.key contains your private key and is very secret. If anyone
-gets access to that file they can sign kernels with it. Keep it secure.
+Note: keys/dev.key contains your private key and is very secret. If anyone gets
+access to that file they can sign kernels with it. Keep it secure. If you want
+to change the file name from "dev" to another, you need to edit key-name-hint of
+"artik_signature.dts" file.
 
 
-Step 6: Sign the kernel
------------------------
+Step 3: Build with Verified Boot
+--------------------------------
 
-We need to use mkimage (which was built when you built U-Boot) to package the
-Linux kernel into a FIT (Flat Image Tree, a flexible file format that U-Boot
-can load) using the ITS file you just created.
+You need to put some more argument like below.
+(Please use your model config file. This example uses artik5.)
 
-At the same time we must put the public key into U-Boot device tree, with the
-'required' property, which tells U-Boot that this key must be verified for the
-image to be valid. You will make this key available to U-Boot for booting in
-step 5.
+   # ./release.sh -c config/artik5.cfg --vboot --vboot-keydir ${KEYF}
 
-   $UOUT/tools/mkimage -D "-I dts -O dtb -p 2000" -f kernel_fit_verify.its -K u-
-boot.dtb -k keys -r rsa_kernel.fit
+Or if you have your own its file then,
+
+   # ./release.sh -c config/artik5.cfg --vboot --vboot-keydir ${KEYF}
+ --vboot-its {your its file}
+
+
+Step 4. Put U-Boot, env and the Kernel onto the board
+------------------------------------------------
+
+This is guided in another channel. Please refer to the manual.
+Shortly, you can use the commands below.
+
+   # fastboot flash env params.bin
+   # fastboot flash bootloader u-boot.bin
+   # fastboot flash kernel zImage
+
+Or simply,
+
+   # flash_all_by_fastboot.sh
+
+
+Step 5. Try it
+---------
 
 You should see something like this:
 
-FIT description: ARTIK520 Image with single Linux kernel and FDT blob
-Created:         Wed May 25 18:25:15 2016
- Image 0 (kernel@1)
-  Description:  Linux kernel
-  Type:         Kernel Image
-  Compression:  uncompressed
-  Data Size:    4888544 Bytes = 4773.97 kB = 4.66 MB
-  Architecture: ARM
-  OS:           Linux
-  Load Address: 0x40008000
-  Entry Point:  0x40008000
-  Hash algo:    sha1
-  Hash value:   6660d51090468f1b458fe6f1a601919aa0324dc2
-  Sign algo:    sha1,rsa2048:dev
-  Sign value:   3de628e70ffb0fa3e19494f255665597c07a7cfcf91097721e395bcff9e30534
-e462bda97c2cf7110ab4f82a57c8a5d41ee79be247a92746509ed9f63d4943e67fad640df050dc52
-89e2f85db3a52b163a8add6ceb1b4c41a41ffcb0fd2b3151a66b06fb9ff18627e1312f995e23ccf7
-5473a1d58d3d572847f8c44c62dc4d9a585429e3a8345a173f1b1e8455db48040d52c84bfcc4a209
-25561d6f324246c7f3aaad39529e54bd4fead3c0fd6229800b2ec954c9daf5428d9027f0c76566e7
-7284c111b1cbe80810441f88632edb978996bd0ecc7ef2cfcb75133593299c0f782060f3c411d9aa
-53e242c81d954773d51dda134812d2a7b9b792aca6e0f36c
-  Timestamp:    Wed May 25 18:25:15 2016
- Image 1 (fdt@1)
-  Description:  Flattened Device Tree blob
-  Type:         Flat Device Tree
-  Compression:  uncompressed
-  Data Size:    40794 Bytes = 39.84 kB = 0.04 MB
-  Architecture: ARM
-  Hash algo:    sha1
-  Hash value:   ad706c6614595bdc15aeef10a2e3a35b692466fd
-  Sign algo:    sha1,rsa2048:dev
-  Sign value:   78fb9166c537fb85a52bd28d54c44e626f90bbbd653c46c875bf63b5c0635123
-4d97dc900d772d2918e02fbc4750deaba788b0aaac0a48a0ed91aa5e9c5035a9c4e52a2db1e78fdd
-230589396f7b77424bde2526c7a599c69ab0f4ed421aec345eb57a5cea392e949f0c0520e93c1be5
-c596d31e2bb1fec76de4b7e31f8a03f1a0c9f38f60212136678c016e5048cadf869f2b2dfdc6a569
-1786e2739753a71a8fd73124f5c43e381b6a529a0988bbaadc539290cd4f286797901d049484b66a
-db50e5e3352fc735a46c465a96bf7c996574a6331be3646cf2680c4ce6caab4bc4c7b817e2f499b7
-b34fa59430734a31f0cc033c686fa2f8e35926658eaddfee
-  Timestamp:    Wed May 25 18:25:15 2016
- Default Configuration: 'conf@1'
- Configuration 0 (conf@1)
-  Description:  Boot Linux kernel with FDT blob
-  Kernel:       kernel@1
-  FDT:          fdt@1
-
-
-Now u-boot.dtb contains the public key and rsa_kernel.fit contains
-the signed kernel. Jump to step 7 if you like, or continue reading to increase
-your understanding.
-
-
-7. Put the public key under U-Boot's image
------------------------------------------
-
-Having confirmed that the signature is doing its job, let's try it out in
-U-Boot on the board. U-Boot needs access to the public key corresponding to
-the private key that you signed with so that it can verify any kernels that
-you sign.
-
-   cd $WORK
-   cat u-boot.bin u-boot.dtb > u-boot-dtb.bin
-
-Now you have a special U-Boot image with the public key. It can verify
-kernel that you sign with the private key as in step 6.
-
-
-8. Put U-Boot and the kernel onto the board
--------------------------------------------
-
-This is guided in another channel. Please refer to the manual.
-Shortly, you can user commands below.
-
-   fastboot flash bootloader u-boot-dtb.bin
-   fastboot flash kernel rsa_kernel.fit
-
-
-9. Try it
----------
-
-Boot the board using the commands below:
-
-   setenv boot_cmd_initrd 'fatload mmc 0:1 42000000 $kernel_file;fatload mmc 0:1
-$fdtaddr $fdtfile;fatload mmc 0:1 $initrd_addr $initrd_file;bootm 42000000'
-   saveenv
-   run boot_cmd_initrd
-
-You should then see something like this:
-
-ARTIK5 # setenv boot_cmd_initrd 'fatload mmc 0:1 42000000 $kernel_file;fatload m
-mc 0:1 $fdtaddr $fdtfile;fatload mmc 0:1 $initrd_addr $initrd_file;bootm 4200000
-0'
-ARTIK5 # saveenv
 Saving Environment to MMC...
 Writing to MMC(0)... done
 ARTIK5 # run boot_cmd_initrd

@@ -36,6 +36,25 @@
 
 #include <configs/artik_common.h>
 
+/* Skip fdt header check */
+#define CONFIG_OF_SKIP_CHECK
+
+/* FDT */
+#define CONFIG_OF_CONTROL
+#define CONFIG_OF_SEPARATE
+
+/* FIT */
+#define CONFIG_FIT
+
+/* Verified Boot */
+#define CONFIG_FIT_SIGNATURE
+#define CONFIG_RSA
+#define CONFIG_FIT_VERBOSE
+
+/* Device Tree */
+#define CONFIG_ARCH_DEVICE_TREE		skeleton
+#define CONFIG_DEFAULT_DEVICE_TREE	artik_signature
+
 /* TRUSTZONE */
 #define CONFIG_TRUSTZONE_RESERVED_DRAM  0x1800000
 

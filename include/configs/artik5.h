@@ -50,7 +50,7 @@
 
 /* Device Tree */
 #define CONFIG_ARCH_DEVICE_TREE		skeleton
-#define CONFIG_DEFAULT_DEVICE_TREE	espresso3250_signature
+#define CONFIG_DEFAULT_DEVICE_TREE	artik_signature
 
 /* TRUSTZONE */
 #define CONFIG_TRUSTZONE_RESERVED_DRAM  0x800000	/* USE 8MB */
