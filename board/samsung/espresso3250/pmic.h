@@ -39,6 +39,10 @@
 #define S2MPS14_WR_ADDR	0xCC
 #define S2MPS14_RD_ADDR	0xCD
 
+/* RTC */
+#define S2MPS14_RTC_WR_ADDR	0x0C
+#define S2MPS14_RTC_RD_ADDR	0x0D
+
 #define VDD_BASE_VOLT_BUCK1	65000
 #define VDD_VOLT_STEP_BUCK1	625
 #define MIN_VOLT_BUCK1	650
@@ -86,7 +90,15 @@
  */
 #define WRSTBI_EN		(0x1 << 5)
 
+/*
+ * RTC WTSR/SMPL
+ */
+#define RTC_WTSR_SMPL	(0x1)
+#define WTSREN			(0x1 << 6)
+#define WTSRT			(0x3)
+
 extern void pmic_init(void);
+extern void pmic_enable_wtsr(void);
 extern void IIC0_ERead(unsigned char ChipId,
 		unsigned char IicAddr, unsigned char *IicData);
 extern void IIC0_EWrite(unsigned char ChipId,
