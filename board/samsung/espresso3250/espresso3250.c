@@ -509,6 +509,8 @@ int board_late_init(void)
 	rst_stat = readl(&pmu->rst_stat);
 	printf("rst_stat : 0x%x\n", rst_stat);
 
+	pmic_enable_wtsr();
+
 #if 0
 	pressed_key = check_key();
 #endif
