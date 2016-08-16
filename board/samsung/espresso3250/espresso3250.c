@@ -44,6 +44,18 @@
 DECLARE_GLOBAL_DATA_PTR;
 unsigned int OmPin;
 
+void pwm_early_init(unsigned int channel)
+{
+	struct exynos3_gpio_part1 *bank =
+		(struct exynos3_gpio_part1 *)samsung_get_base_gpio_part1();
+
+	if (channel > 4)
+		return;
+
+	pwm_enable(channel);
+	pwm_disable(channel);
+	s5p_gpio_cfg_pin(&bank->d0, channel, GPIO_FUNC(0x2));
+}
 
 int board_init(void)
 {
@@ -128,6 +140,10 @@ int board_init(void)
 	} else {
 		printf(" Please check OM_pin\n");
 	}
+
+	/* Enable PWM to maintain the PWM output signal to low */
+	pwm_early_init(0);
+	pwm_early_init(1);
 
 	return 0;
 }
