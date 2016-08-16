@@ -597,8 +597,8 @@ int board_late_init(void)
 	/*   check reset status for ramdump */
 	if ((rst_stat & (WRESET | SYS_WDTRESET | ISP_ARM_WDTRESET))
 		|| (readl(CONFIG_RAMDUMP_SCRATCH) == CONFIG_RAMDUMP_MODE)) {
-		/*   run fastboot */
-		run_command("fastboot", 0);
+		/*   run reset instead of fastboot */
+		run_command("reset", 0);
 	}
 #endif
 
