@@ -394,6 +394,8 @@
 	"mmcboot=run load_args; run boot_cmd\0"				\
 	"hwtestboot=setenv opts loglevel=4 spi-s3c64xx.disable=1;"	\
 		"setenv rootdev 1; run ramfsboot\0"			\
+	"hwtestvboot=setenv opts loglevel=4 spi-s3c64xx.disable=1;"	\
+		"setenv rootdev 1; run vboot\0"			\
 	"bootcmd=run ramfsboot\0"
 
 #endif /* __ARTIK_COMMON_H */
