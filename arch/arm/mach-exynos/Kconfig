@@ -36,6 +36,18 @@ config ARCH_EXYNOS7
 
 endchoice
 
+if ARCH_EXYNOS0
+choice
+	prompt "EXYNOS0 board select"
+
+config TARGET_ARTIK051
+	bool "ARTIK-051 board"
+	select CLK_EXYNOS
+	select CLK_EXYNOS0200
+
+endchoice
+endif
+
 if ARCH_EXYNOS4
 
 choice
@@ -157,5 +169,6 @@ source "board/samsung/arndale/Kconfig"
 source "board/samsung/smdk5250/Kconfig"
 source "board/samsung/smdk5420/Kconfig"
 source "board/samsung/espresso7420/Kconfig"
+source "board/samsung/artik051/Kconfig"
 
 endif

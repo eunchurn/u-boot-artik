@@ -1,0 +1,45 @@
+/*
+ * Copyright (C) 2016 Samsung Electronics
+ * Heesub Shin <heesub.shin@samsung.com>
+ *
+ * Configuation settings for the ARTIK-051 (EXYNOS T200) board.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#ifndef __CONFIG_ARTIK_051_H
+#define __CONFIG_ARTIK_051_H
+
+#include <configs/exynos0200-common.h>
+
+#undef CONFIG_CMD_PXE
+
+#define CONFIG_SYS_TEXT_BASE		0x04004020
+#define CONFIG_SYS_INIT_SP_ADDR		0x02150000
+
+#define CONFIG_MISC_INIT_R
+
+#define CONFIG_SYS_ICACHE_OFF
+#define CONFIG_SYS_DCACHE_OFF
+
+#define CONFIG_MTD_DEVICE
+#define CONFIG_SYS_MAX_FLASH_SECT	2048
+#define CONFIG_SYS_FLASH_EMPTY_INFO
+
+#define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_OFFSET		(SZ_1K * 127)
+#define CONFIG_ENV_SIZE			(SZ_1K * 1)
+#define CONFIG_ENV_SECT_SIZE		0x2000
+
+#define CONFIG_SYS_SRAM_BASE		0x02023800
+#define CONFIG_SYS_SRAM_SIZE		(722 * 1024)
+
+#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_SRAM_BASE
+
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+
+#define SDRAM_BANK_SIZE			0
+
+#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SRAM_BASE
+
+#endif	/* __CONFIG_ARTIK_051_H */
