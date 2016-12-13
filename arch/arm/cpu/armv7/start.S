@@ -66,6 +66,7 @@ switch_to_hypervisor_ret:
  * (OMAP4 spl TEXT_BASE is not 32 byte aligned.
  * Continue to use ROM code vector only in OMAP4 spl)
  */
+#if defined(CONFIG_HAS_VBAR)
 #if !(defined(CONFIG_OMAP44XX) && defined(CONFIG_SPL_BUILD))
 	/* Set V=0 in CP15 SCTLR register - for VBAR to point to vector */
 	mrc	p15, 0, r0, c1, c0, 0	@ Read CP15 SCTLR Register
@@ -75,6 +76,7 @@ switch_to_hypervisor_ret:
 	/* Set vector address in CP15 VBAR register */
 	ldr	r0, =_start
 	mcr	p15, 0, r0, c12, c0, 0	@Set VBAR
+#endif
 #endif
 
 	/* the mask ROM code should have PLL and others stable */
