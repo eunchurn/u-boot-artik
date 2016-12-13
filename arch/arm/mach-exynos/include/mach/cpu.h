@@ -193,17 +193,18 @@
 
 #ifndef __ASSEMBLY__
 #include <asm/io.h>
-/* CPU detection macros */
-extern unsigned int s5p_cpu_id;
-extern unsigned int s5p_cpu_rev;
+#include <asm/u-boot.h>
+#include <asm/global_data.h>
 
 static inline int s5p_get_cpu_rev(void)
 {
-	return s5p_cpu_rev;
+	DECLARE_GLOBAL_DATA_PTR;
+	return gd->arch.s5p_cpu_rev;
 }
 
 static inline void s5p_set_cpu_id(void)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int pro_id = readl(EXYNOS4_PRO_ID);
 	unsigned int cpu_id = (pro_id & 0x00FFF000) >> 12;
 	unsigned int cpu_rev = pro_id & 0x000000FF;
@@ -211,33 +212,33 @@ static inline void s5p_set_cpu_id(void)
 	switch (cpu_id) {
 	case 0x200:
 		/* Exynos4210 EVT0 */
-		s5p_cpu_id = 0x4210;
-		s5p_cpu_rev = 0;
+		gd->arch.s5p_cpu_id = 0x4210;
+		gd->arch.s5p_cpu_rev = 0;
 		break;
 	case 0x210:
 		/* Exynos4210 EVT1 */
-		s5p_cpu_id = 0x4210;
-		s5p_cpu_rev = cpu_rev;
+		gd->arch.s5p_cpu_id = 0x4210;
+		gd->arch.s5p_cpu_rev = cpu_rev;
 		break;
 	case 0x412:
 		/* Exynos4412 */
-		s5p_cpu_id = 0x4412;
-		s5p_cpu_rev = cpu_rev;
+		gd->arch.s5p_cpu_id = 0x4412;
+		gd->arch.s5p_cpu_rev = cpu_rev;
 		break;
 	case 0x520:
 		/* Exynos5250 */
-		s5p_cpu_id = 0x5250;
+		gd->arch.s5p_cpu_id = 0x5250;
 		break;
 	case 0x420:
 		/* Exynos5420 */
-		s5p_cpu_id = 0x5420;
+		gd->arch.s5p_cpu_id = 0x5420;
 		break;
 	case 0x422:
 		/*
 		 * Exynos5800 is a variant of Exynos5420
 		 * and has product id 0x5422
 		 */
-		s5p_cpu_id = 0x5422;
+		gd->arch.s5p_cpu_id = 0x5422;
 		break;
 	}
 }
@@ -250,7 +251,8 @@ static inline char *s5p_get_cpu_name(void)
 #define IS_SAMSUNG_TYPE(type, id)			\
 static inline int __attribute__((no_instrument_function)) cpu_is_##type(void) \
 {							\
-	return (s5p_cpu_id >> 12) == id;		\
+	DECLARE_GLOBAL_DATA_PTR;			\
+	return (gd->arch.s5p_cpu_id >> 12) == id;       \
 }
 
 IS_SAMSUNG_TYPE(exynos4, 0x4)
@@ -260,7 +262,8 @@ IS_SAMSUNG_TYPE(exynos5, 0x5)
 static inline int __attribute__((no_instrument_function)) \
 	proid_is_##type(void)				\
 {							\
-	return s5p_cpu_id == id;			\
+	DECLARE_GLOBAL_DATA_PTR;			\
+	return gd->arch.s5p_cpu_id == id;		\
 }
 
 IS_EXYNOS_TYPE(exynos4210, 0x4210)

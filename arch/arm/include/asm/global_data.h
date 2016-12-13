@@ -68,6 +68,11 @@ struct arch_global_data {
 #if defined(CONFIG_FSL_LSCH3) && defined(CONFIG_SYS_FSL_HAS_DP_DDR)
 	unsigned long mem2_clk;
 #endif
+
+#ifdef CONFIG_ARCH_EXYNOS
+	u32 s5p_cpu_id;
+	u32 s5p_cpu_rev;
+#endif
 };
 
 #include <asm-generic/global_data.h>

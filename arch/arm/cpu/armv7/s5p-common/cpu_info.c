@@ -11,11 +11,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Default is s5pc100 */
-unsigned int s5p_cpu_id = 0xC100;
-/* Default is EVT1 */
-unsigned int s5p_cpu_rev = 1;
-
 #ifdef CONFIG_ARCH_CPU_INIT
 int arch_cpu_init(void)
 {
@@ -27,7 +22,7 @@ int arch_cpu_init(void)
 
 u32 get_device_type(void)
 {
-	return s5p_cpu_id;
+	return gd->arch.s5p_cpu_id;
 }
 
 #ifdef CONFIG_DISPLAY_CPUINFO
@@ -41,7 +36,8 @@ int print_cpuinfo(void)
 	if (cpu_model)
 		printf("CPU:   %.*s @ ", len, cpu_model);
 	else
-		printf("CPU:   %s%X @ ", s5p_get_cpu_name(), s5p_cpu_id);
+		printf("CPU:   %s%X @ ", s5p_get_cpu_name(),
+						gd->arch.s5p_cpu_id);
 
 	print_freq(get_arm_clk(), "\n");
 
