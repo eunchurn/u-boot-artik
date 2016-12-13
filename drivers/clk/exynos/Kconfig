@@ -10,7 +10,7 @@ menu "Clock drivers for Exynos SoCs"
 
 config CLK_EXYNOS7420
 	bool "Clock driver for Samsung's Exynos7420 SoC"
-	default y
+	default n
 	help
 	  This enables common clock driver support for platforms based
 	  on Samsung Exynos7420 SoC.

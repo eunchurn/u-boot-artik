@@ -133,6 +133,7 @@ config  TARGET_ESPRESSO7420
 	select PINCTRL
 	select PINCTRL_EXYNOS7420
 	select CLK_EXYNOS
+	select CLK_EXYNOS7420
 
 endchoice
 endif
