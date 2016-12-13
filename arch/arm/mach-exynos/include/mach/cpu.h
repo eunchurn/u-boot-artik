@@ -13,6 +13,54 @@
 #define EXYNOS_CPU_NAME			"Exynos"
 #define EXYNOS4_ADDR_BASE		0x10000000
 
+#ifdef CONFIG_ARCH_EXYNOS0
+#define EXYNOS_PRO_ID	EXYNOS0_PRO_ID
+#else
+#define EXYNOS_PRO_ID	EXYNOS4_PRO_ID
+#endif
+
+/* EXYNOS0 Common */
+#define EXYNOS0_PRO_ID			0x80000000
+#define EXYNOS0_POWER_BASE		0x80090000
+#define EXYNOS0_SWRESET			0x80090400
+#define EXYNOS0_SYSTIMER_BASE		0x80020000
+#define EXYNOS0_WATCHDOG_BASE		0x80030000
+#define EXYNOS0_GPIO_PART1_BASE		0x80040000
+#define EXYNOS0_CLOCK_BASE		0x80080000
+#define EXYNOS0_SYSREG_BASE		0x800A0000
+#define EXYNOS0_UART_BASE		0x80200000
+#define EXYNOS0_SPI_BASE		0x80240000
+#define EXYNOS0_I2C_BASE		0x80280000
+#define EXYNOS0_I2S_BASE		0x802C0000
+#define EXYNOS0_ADC_BASE		0x802D0000
+#define EXYNOS0_PWMTIMER_BASE		0x802E0000
+#define EXYNOS0_SDIO_BASE		0x80300000
+#define EXYNOS0_SERIAL_FLASH_BASE	0x80310000
+#define EXYNOS0_GIC_BASE		0x80400000
+
+#define EXYNOS0_TZPC_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_GPIO_PART2_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_GPIO_PART3_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_GPIO_PART4_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_DMC_CTRL_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_MIU_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_FIMD_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_ACE_SFR_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_MIPI_DSIM_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_USBOTG_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_MMC_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_SROMC_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_USB_HOST_EHCI_BASE	DEVICE_NOT_AVAILABLE
+#define EXYNOS0_USBPHY_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_MODEM_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_DP_BASE			DEVICE_NOT_AVAILABLE
+#define EXYNOS0_SPI_ISP_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_DMC_PHY_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_AUDIOSS_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_USB_HOST_XHCI_BASE	DEVICE_NOT_AVAILABLE
+#define EXYNOS0_USB3PHY_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS0_DMC_TZASC_BASE		DEVICE_NOT_AVAILABLE
+
 /* EXYNOS4 Common*/
 #define EXYNOS4_I2C_SPACING		0x10000
 
@@ -205,11 +253,16 @@ static inline int s5p_get_cpu_rev(void)
 static inline void s5p_set_cpu_id(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	unsigned int pro_id = readl(EXYNOS4_PRO_ID);
+	unsigned int pro_id = readl(EXYNOS_PRO_ID);
 	unsigned int cpu_id = (pro_id & 0x00FFF000) >> 12;
 	unsigned int cpu_rev = pro_id & 0x000000FF;
 
 	switch (cpu_id) {
+	case 0x020:
+		/* Exynos T200 */
+		gd->arch.s5p_cpu_id = 0x0200;
+		gd->arch.s5p_cpu_rev = cpu_rev;
+		break;
 	case 0x200:
 		/* Exynos4210 EVT0 */
 		gd->arch.s5p_cpu_id = 0x4210;
@@ -255,6 +308,7 @@ static inline int __attribute__((no_instrument_function)) cpu_is_##type(void) \
 	return (gd->arch.s5p_cpu_id >> 12) == id;       \
 }
 
+IS_SAMSUNG_TYPE(exynos0, 0x0)
 IS_SAMSUNG_TYPE(exynos4, 0x4)
 IS_SAMSUNG_TYPE(exynos5, 0x5)
 
@@ -266,6 +320,7 @@ static inline int __attribute__((no_instrument_function)) \
 	return gd->arch.s5p_cpu_id == id;		\
 }
 
+IS_EXYNOS_TYPE(exynos0200, 0x0200)
 IS_EXYNOS_TYPE(exynos4210, 0x4210)
 IS_EXYNOS_TYPE(exynos4412, 0x4412)
 IS_EXYNOS_TYPE(exynos5250, 0x5250)
@@ -276,7 +331,9 @@ IS_EXYNOS_TYPE(exynos5422, 0x5422)
 static inline unsigned long __attribute__((no_instrument_function)) \
 	samsung_get_base_##device(void) \
 {								\
-	if (cpu_is_exynos4()) {				\
+	if (cpu_is_exynos0()) {					\
+		return EXYNOS0_##base;				\
+	} else if (cpu_is_exynos4()) {				\
 		if (proid_is_exynos4412())			\
 			return EXYNOS4X12_##base;		\
 		return EXYNOS4_##base;				\
