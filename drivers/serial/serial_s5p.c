@@ -95,7 +95,7 @@ int s5p_serial_setbrg(struct udevice *dev, int baudrate)
 
 #ifdef CONFIG_CLK_EXYNOS
 	struct clk clk;
-	u32 ret;
+	int ret;
 
 	ret = clk_get_by_index(dev, 1, &clk);
 	if (ret < 0)
