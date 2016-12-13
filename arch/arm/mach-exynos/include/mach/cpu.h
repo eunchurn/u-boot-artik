@@ -258,11 +258,14 @@ static inline void s5p_set_cpu_id(void)
 	unsigned int cpu_rev = pro_id & 0x000000FF;
 
 	switch (cpu_id) {
+#ifdef CONFIG_ARCH_EXYNOS0
 	case 0x020:
 		/* Exynos T200 */
 		gd->arch.s5p_cpu_id = 0x0200;
 		gd->arch.s5p_cpu_rev = cpu_rev;
 		break;
+#endif
+#ifdef CONFIG_ARCH_EXYNOS4
 	case 0x200:
 		/* Exynos4210 EVT0 */
 		gd->arch.s5p_cpu_id = 0x4210;
@@ -278,6 +281,8 @@ static inline void s5p_set_cpu_id(void)
 		gd->arch.s5p_cpu_id = 0x4412;
 		gd->arch.s5p_cpu_rev = cpu_rev;
 		break;
+#endif
+#ifdef CONFIG_ARCH_EXYNOS5
 	case 0x520:
 		/* Exynos5250 */
 		gd->arch.s5p_cpu_id = 0x5250;
@@ -293,6 +298,7 @@ static inline void s5p_set_cpu_id(void)
 		 */
 		gd->arch.s5p_cpu_id = 0x5422;
 		break;
+#endif
 	}
 }
 
@@ -301,10 +307,19 @@ static inline char *s5p_get_cpu_name(void)
 	return EXYNOS_CPU_NAME;
 }
 
+#if defined(CONFIG_ARCH_EXYNOS0)
+#define EXYNOS_TYPE_ID 0x0
+#elif defined(CONFIG_ARCH_EXYNOS4)
+#define EXYNOS_TYPE_ID 0x4
+#elif defined(CONFIG_ARCH_EXYNOS5)
+#define EXYNOS_TYPE_ID 0x5
+#endif
+
 #define IS_SAMSUNG_TYPE(type, id)			\
 static inline int __attribute__((no_instrument_function)) cpu_is_##type(void) \
 {							\
 	DECLARE_GLOBAL_DATA_PTR;			\
+	if (EXYNOS_TYPE_ID != id) return 0;             \
 	return (gd->arch.s5p_cpu_id >> 12) == id;       \
 }
 
