@@ -10,7 +10,11 @@
 #define __ASM_ARM_ARCH_PWM_H_
 
 #define PRESCALER_0		(8 - 1)		/* prescaler of timer 0, 1 */
+#ifdef CONFIG_ARCH_EXYNOS0
+#define PRESCALER_1		(13 - 1)	/* prescaler of timer 2, 3, 4 */
+#else
 #define PRESCALER_1		(16 - 1)	/* prescaler of timer 2, 3, 4 */
+#endif
 
 /* Divider MUX */
 #define MUX_DIV_1		0		/* 1/1 period */

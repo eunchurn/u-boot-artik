@@ -45,7 +45,11 @@ static unsigned long timer_get_us_down(void)
 int timer_init(void)
 {
 	/* PWM Timer 4 */
+#ifdef CONFIG_ARCH_EXYNOS0
+	pwm_init(4, MUX_DIV_2, 0);
+#else
 	pwm_init(4, MUX_DIV_4, 0);
+#endif
 	pwm_config(4, 100000, 100000);
 	pwm_enable(4);
 
