@@ -6,4 +6,5 @@
 #
 
 obj-y				+= clk-pll.o
+obj-$(CONFIG_CLK_EXYNOS0200)	+= clk-exynos0200.o
 obj-$(CONFIG_CLK_EXYNOS7420)	+= clk-exynos7420.o

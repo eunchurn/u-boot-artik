@@ -1573,6 +1573,49 @@ static unsigned long exynos4_get_i2c_clk(void)
 	return aclk_100;
 }
 
+static unsigned long exynos0_get_pll_clk(int pllreg)
+{
+	if (pllreg != WPLL) {
+		printf("Unsupported PLL (%d)\n", pllreg);
+		return 0;
+	}
+
+	return 960000000;
+}
+
+static unsigned long exynos0_get_i2c_clk(void)
+{
+	return 0;
+}
+
+static unsigned long exynos0_get_uart_clk(int dev_index)
+{
+	struct exynos0200_clock *clk =
+		(struct exynos0200_clock *) samsung_get_base_clock();
+
+	writel(0x1, &clk->mux_uart);
+
+	if (readl(&clk->mux_uart) & 0x1) {
+		int div3 = (readl(&clk->div_wpll_div3) & 0xf) + 1;
+		int div6 = (readl(&clk->div_wpll_div6) & 0x1) + 1;
+		int div12 = (readl(&clk->div_wpll_div12) & 0x1) + 1;
+
+		return exynos0_get_pll_clk(WPLL) / div3 / div6 / div12;
+	}
+
+	return CONFIG_SYS_CLK_FREQ;
+}
+
+static unsigned long exynos0_get_pwm_clk(void)
+{
+	return CONFIG_SYS_CLK_FREQ;
+}
+
+static unsigned long exynos0_get_arm_clk(void)
+{
+	return 320000000;
+}
+
 unsigned long get_pll_clk(int pllreg)
 {
 	if (cpu_is_exynos5()) {
@@ -1583,6 +1626,8 @@ unsigned long get_pll_clk(int pllreg)
 		if (proid_is_exynos4412())
 			return exynos4x12_get_pll_clk(pllreg);
 		return exynos4_get_pll_clk(pllreg);
+	} else if (cpu_is_exynos0()) {
+		return exynos0_get_pll_clk(pllreg);
 	}
 
 	return 0;
@@ -1596,6 +1641,8 @@ unsigned long get_arm_clk(void)
 		if (proid_is_exynos4412())
 			return exynos4x12_get_arm_clk();
 		return exynos4_get_arm_clk();
+	} else if (cpu_is_exynos0()) {
+		return exynos0_get_arm_clk();
 	}
 
 	return 0;
@@ -1607,6 +1654,8 @@ unsigned long get_i2c_clk(void)
 		return clock_get_periph_rate(PERIPH_ID_I2C0);
 	else if (cpu_is_exynos4())
 		return exynos4_get_i2c_clk();
+	else if (cpu_is_exynos0())
+		return exynos0_get_i2c_clk();
 
 	return 0;
 }
@@ -1619,6 +1668,8 @@ unsigned long get_pwm_clk(void)
 		if (proid_is_exynos4412())
 			return exynos4x12_get_pwm_clk();
 		return exynos4_get_pwm_clk();
+	} else if (cpu_is_exynos0()) {
+		return exynos0_get_pwm_clk();
 	}
 
 	return 0;
@@ -1641,6 +1692,9 @@ unsigned long get_uart_clk(int dev_index)
 	case 3:
 		id = PERIPH_ID_UART3;
 		break;
+	case 4:
+		id = PERIPH_ID_UART4;
+		break;
 	default:
 		debug("%s: invalid UART index %d", __func__, dev_index);
 		return -1;
@@ -1652,6 +1706,8 @@ unsigned long get_uart_clk(int dev_index)
 		if (proid_is_exynos4412())
 			return exynos4x12_get_uart_clk(dev_index);
 		return exynos4_get_uart_clk(dev_index);
+	} else if (cpu_is_exynos0()) {
+		return exynos0_get_uart_clk(dev_index);
 	}
 
 	return 0;

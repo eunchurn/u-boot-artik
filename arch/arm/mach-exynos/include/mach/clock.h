@@ -9,6 +9,41 @@
 #define __ASM_ARM_ARCH_CLOCK_H_
 
 #ifndef __ASSEMBLY__
+
+struct exynos0200_clock {
+	unsigned int	wpll_con0;		/* 0x80080000 */
+	unsigned int	wpll_con1;
+	unsigned int	wpll_con2;
+	unsigned int	wpll_con3;
+	unsigned int	wpll_con4;
+	unsigned int	wpll_con5;
+	unsigned int	wpll_stat;
+	unsigned char	res1[0x164];
+	unsigned int	pll_con0;		/* 0x80080180 */
+	unsigned int	pll_con1;
+	unsigned int	pll_con2;
+	unsigned char	res2[0x674];
+	unsigned int	cmu_con;		/* 0x80080800 */
+	unsigned char	res3[0xc];
+	unsigned int	clkout_con;		/* 0x80080810 */
+	unsigned char	res4[0x1ec];
+	unsigned int	spare0;			/* 0x80080a00 */
+	unsigned int	spare1;
+	unsigned char	res5[0x5f8];
+	unsigned int	mux_i2sb;		/* 0x80081000 */
+	unsigned char	res6[0x8];
+	unsigned int	mux_uart;		/* 0x8008100c */
+	unsigned char	res7[0x7f0];
+	unsigned int	div_sflash;		/* 0x80081800 */
+	unsigned int	div_spi;
+	unsigned int	div_spi1;
+	unsigned int	div_spi2;
+	unsigned int	div_spi3;
+	unsigned int	div_wpll_div12;
+	unsigned int	div_wpll_div3;
+	unsigned int	div_wpll_div6;		/* 0x8008181c */
+};
+
 struct exynos4_clock {
 	unsigned char	res1[0x4200];
 	unsigned int	src_leftbus;

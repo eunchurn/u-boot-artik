@@ -35,6 +35,13 @@ config FLASH_PIC32
 	  This enables access to Microchip PIC32 internal non-CFI flash
 	  chips through PIC32 Non-Volatile-Memory Controller.
 
+config EXYNOS0_FLASH
+	bool "Exynos0 Serial Flash driver"
+	depends on MTD && ARCH_EXYNOS0
+	help
+	  This enables access to external SPI flash chips using the
+	  Serial Flash Controller in Exynos0.
+
 endmenu
 
 source "drivers/mtd/nand/Kconfig"

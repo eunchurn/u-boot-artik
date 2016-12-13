@@ -861,6 +861,60 @@ static int exynos4x12_pinmux_config(int peripheral, int flags)
 	return 0;
 }
 
+static void exynos0_uart_config(int peripheral)
+{
+	int i, start, count;
+
+	switch (peripheral) {
+	case PERIPH_ID_UART0:
+		start = EXYNOS0_GPIO_A00;
+		count = 2;
+		break;
+	case PERIPH_ID_UART1:
+		start = EXYNOS0_GPIO_P04;
+		count = 2;
+		break;
+	case PERIPH_ID_UART2:
+		start = EXYNOS0_GPIO_P06;
+		count = 2;
+		break;
+	case PERIPH_ID_UART3:
+		start = EXYNOS0_GPIO_P16;
+		count = 2;
+		break;
+	case PERIPH_ID_UART4:
+		start = EXYNOS0_GPIO_A30;
+		count = 2;
+		break;
+	default:
+		debug("%s: invalid peripheral %d", __func__, peripheral);
+		return;
+	}
+
+	for (i = start; i < (start + count); i++) {
+		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
+		gpio_cfg_pin(i, S5P_GPIO_FUNC(0x2));
+	}
+}
+
+static int exynos0_pinmux_config(int peripheral, int flags)
+{
+	switch (peripheral) {
+	case PERIPH_ID_UART0:
+	case PERIPH_ID_UART1:
+	case PERIPH_ID_UART2:
+	case PERIPH_ID_UART3:
+	case PERIPH_ID_UART4:
+		exynos0_uart_config(peripheral);
+		break;
+	default:
+		debug("%s: invalid peripheral %d", __func__, peripheral);
+		return -1;
+	}
+
+	return 0;
+}
+
 int exynos_pinmux_config(int peripheral, int flags)
 {
 	if (cpu_is_exynos5()) {
@@ -873,6 +927,8 @@ int exynos_pinmux_config(int peripheral, int flags)
 			return exynos4x12_pinmux_config(peripheral, flags);
 		else
 			return exynos4_pinmux_config(peripheral, flags);
+	} else if (cpu_is_exynos0()) {
+		return exynos0_pinmux_config(peripheral, flags);
 	}
 
 	debug("pinmux functionality not supported\n");

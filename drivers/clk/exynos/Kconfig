@@ -15,4 +15,11 @@ config CLK_EXYNOS7420
 	  This enables common clock driver support for platforms based
 	  on Samsung Exynos7420 SoC.
 
+config CLK_EXYNOS0200
+	bool "Clock driver for Samsung's Exynos0200 SoC"
+	default n
+	help
+	  This enables common clock driver support for platforms based
+	  on Samsung Exynos0200 SoC.
+
 endmenu

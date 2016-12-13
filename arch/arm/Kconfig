@@ -431,12 +431,12 @@ config TARGET_BCMNSP
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
 	select DM
-	select DM_I2C
-	select DM_SPI_FLASH
+	select DM_I2C if !ARCH_EXYNOS0
+	select DM_SPI_FLASH if !ARCH_EXYNOS0
 	select DM_SERIAL
-	select DM_SPI
-	select DM_GPIO
-	select DM_KEYBOARD
+	select DM_SPI if !ARCH_EXYNOS0
+	select DM_GPIO if !ARCH_EXYNOS0
+	select DM_KEYBOARD if !ARCH_EXYNOS0
 
 config ARCH_S5PC1XX
 	bool "Samsung S5PC1XX"

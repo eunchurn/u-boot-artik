@@ -1,0 +1,106 @@
+/*
+ * Samsung's Exynos T20 SoC device tree source
+ *
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * Samsung's Exynos T20 SoC device nodes are listed in this file.
+ * Exynos T20 based board files can include this file and provide values
+ * for board specfic bindings.
+ *
+ * Note: This file does not include device nodes for all the controllers
+ * in Exynos T20 SoC. As device tree coverage for Exynos T20 increases,
+ * additional nodes can be added to this file.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include "skeleton.dtsi"
+#include <dt-bindings/clock/exynos0200-clk.h>
+
+/ {
+	compatible = "samsung,exynos0200";
+
+	osc: oscillator {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <26000000>;
+		u-boot,dm-pre-reloc;
+	};
+
+	cmu_mcu: cmu@80080000 {
+		compatible = "samsung,exynos0200-cmu-mcu";
+		u-boot,dm-pre-reloc;
+		reg = <0x80080000 0x3c00>;
+		#clock-cells = <1>;
+		clocks = <&osc>;
+		clock-names = "refclk";
+		clock-output-names = "oscclk_mcu", "wpll_div3",
+			"wpll_div6", "wpll_div12", "spl_clk_bus_p0",
+			"spl_clk_uart", "dft_oscclk";
+	};
+
+	cmu_sss: cmu@80070000 {
+		compatible = "samsung,exynos0200-cmu-sss";
+		reg = <0x80070000 0x3c00>;
+		#clock-cells = <1>;
+		clocks = <&osc>, <&cmu_mcu WPLL_DIV3>,
+			<&cmu_mcu WPLL_DIV6>;
+		clock-names = "ref", "d0", "p0";
+		clock-output-names = "spl_clk_bus_d0_sss",
+			"spl_clk_bus_p0_sss", "dft_oscclk_sss";
+	};
+
+	sflash_controller: sflash@0x80310000 {
+		compatible = "samsung,exynos0200-sflash";
+		reg = <0x80310000 0x100>,
+		      <0x04000000 0x5000000>;
+	};
+
+	serial@80180000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x80180000 0x100>;
+		clocks = <&cmu_mcu WPLL_DIV6>, <&cmu_mcu SPL_CLK_UART>;
+		clock-names = "register", "baud";
+		interrupts = <0 51 0>;
+		id = <0>;
+	};
+
+	serial@80200000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x80200000 0x100>;
+		clocks = <&cmu_mcu WPLL_DIV6>, <&cmu_mcu SPL_CLK_UART>;
+		clock-names = "register", "baud";
+		interrupts = <0 52 0>;
+		id = <1>;
+	};
+
+	serial@80210000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x80210000 0x100>;
+		clocks = <&cmu_mcu WPLL_DIV3>, <&cmu_mcu SPL_CLK_UART>;
+		clock-names = "register", "baud";
+		interrupts = <0 53 0>;
+		id = <2>;
+	};
+
+	serial@80220000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x80220000 0x100>;
+		clocks = <&cmu_mcu WPLL_DIV6>, <&cmu_mcu SPL_CLK_UART>;
+		clock-names = "register", "baud";
+		interrupts = <0 54 0>;
+		id = <3>;
+	};
+
+	serial@80230000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x80230000 0x100>;
+		clocks = <&cmu_mcu WPLL_DIV6>, <&cmu_mcu SPL_CLK_UART>;
+		clock-names = "register", "baud";
+		interrupts = <0 55 0>;
+		id = <4>;
+	};
+};

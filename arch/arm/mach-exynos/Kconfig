@@ -4,6 +4,12 @@ choice
 	prompt "EXYNOS architecture type select"
 	optional
 
+config ARCH_EXYNOS0
+	bool "Exynos0 SoC family"
+	select CPU_V7R
+	help
+	  Samsung Exynos0 SoC family are base on ARM Cortex-R4 CPU.
+
 config ARCH_EXYNOS4
 	bool "Exynos4 SoC family"
 	select CPU_V7

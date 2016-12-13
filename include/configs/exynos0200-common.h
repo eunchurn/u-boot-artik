@@ -1,0 +1,34 @@
+/*
+ * Copyright (C) 2016 Samsung Electronics
+ *
+ * Configuration settings for SAMSUNG EXYNOS T200 boards.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#ifndef __CONFIG_EXYNOS0200_COMMON_H
+#define __CONFIG_EXYNOS0200_COMMON_H
+
+#include "exynos-common.h"
+
+#undef CONFIG_GENERIC_MMC
+#undef CONFIG_MMC
+#undef CONFIG_S5P_SDHCI
+#undef CONFIG_SDHCI
+#undef CONFIG_DWMMC
+#undef CONFIG_EXYNOS_DWMMC
+#undef CONFIG_BOUNCE_BUFFER
+#undef CONFIG_FAT_WRITE
+#undef CONFIG_CMD_PART
+#undef CONFIG_PARTITION_UUIDS
+#undef CONFIG_CMD_PXE
+#undef CONFIG_DOS_PARTITION
+#undef CONFIG_EFI_PARTITION
+#undef CONFIG_ISO_PARTITION
+#undef CONFIG_SUPPORT_RAW_INITRD
+#undef CONFIG_SYS_NO_FLASH
+
+#undef CONFIG_SYS_MALLOC_LEN
+#define CONFIG_SYS_MALLOC_LEN		(384 * 1024)
+
+#endif	/* __CONFIG_EXYNOS0200_COMMON_H */
