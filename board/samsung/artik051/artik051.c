@@ -1,13 +1,28 @@
 #include <common.h>
 #include <asm/arch/cpu.h>
+#include <asm/arch/power.h>
 #include <asm/arch/pinmux.h>
 #include <dm/pinctrl.h>
+#include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
+#ifdef CONFIG_HW_WATCHDOG
+	unsigned int mask;
+	struct exynos0200_power *pmu =
+		(struct exynos0200_power *) samsung_get_base_power();
+
+	hw_watchdog_init();
+
+	/* PMU ignores reset signal from WDT, so we need to clear the mask */
+	mask = readl(&pmu->mask_wdt_reset_request);
+	mask &= ~(1 << 23);
+	writel(mask, &pmu->mask_wdt_reset_request);
+#endif /* CONFIG_HW_WATCHDOG */
+
 	/* GPIO for debug UART */
 	if (exynos_pinmux_config(PERIPH_ID_UART4, PINMUX_FLAG_NONE))
 		debug("UART4 not configured.\n");
