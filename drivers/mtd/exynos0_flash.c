@@ -13,6 +13,7 @@
 #include <flash.h>
 #include <mtd.h>
 #include <asm/io.h>
+#include <watchdog.h>
 
 struct exynos0_sflash_regs {
 	u32	reserved1[1];
@@ -124,6 +125,8 @@ static int exynos0_sflash_erase(struct mtd_info *mtd, struct erase_info *instr)
 	instr->state = MTD_ERASING;
 	addr &= ~(mtd->erasesize - 1);
 	while (addr < end) {
+		WATCHDOG_RESET();
+
 		if (ctrlc()) {
 			instr->fail_addr = MTD_FAIL_ADDR_UNKNOWN;
 			instr->state = MTD_ERASE_FAILED;
