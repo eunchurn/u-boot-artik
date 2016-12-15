@@ -9,6 +9,381 @@
 #define __ASM_ARM_ARCH_POWER_H_
 
 #ifndef __ASSEMBLY__
+
+struct exynos0200_power {
+	unsigned int	om_stat;				/* 0x0000 */
+	unsigned int	res1[3];
+	unsigned int	reset_noise_flt;			/* 0x0010 */
+	unsigned int	res2[2];
+	unsigned int	rtc_clko_sel;
+	unsigned int	sfr_access_ctrl;			/* 0x0020 */
+	unsigned int	clkreq_pad_ctrl;
+	unsigned int	res3[70];
+	unsigned int	wifi_ctrl_ns;				/* 0x0140 */
+	unsigned int	wifi_ctrl_s;
+	unsigned int	wifi_stat;
+	unsigned int	wifi_debug;
+	unsigned int	res4[44];
+	unsigned int	central_seq_conf;			/* 0x0200 */
+	unsigned int	central_seq_stat;
+	unsigned int	central_seq_opt;
+	unsigned int	central_seq_opt1;
+	unsigned int	central_seq_duration0;			/* 0x0210 */
+	unsigned int	central_seq_duration1;
+	unsigned int	central_seq_duration2;
+	unsigned int	central_seq_duration3;
+	unsigned int	central_transaction0;			/* 0x0220 */
+	unsigned int	central_transaction1;
+	unsigned int	central_transaction2;
+	unsigned int	central_transaction3;
+	unsigned int	central_transaction4;			/* 0x0230 */
+	unsigned int	central_transaction5;
+	unsigned int	central_transaction6;
+	unsigned int	central_transaction7;
+	unsigned int	res5[80];
+	unsigned int	central_seq_wifi_conf;			/* 0x0380 */
+	unsigned int	central_seq_wifi_stat;
+	unsigned int	central_seq_wifi_opt;
+	unsigned int	res6[1];
+	unsigned int	central_seq_wifi_duration0;		/* 0x0390 */
+	unsigned int	central_seq_wifi_duration1;
+	unsigned int	central_seq_wifi_duration2;
+	unsigned int	central_seq_wifi_duration3;
+	unsigned int	seq_wifi_transition0;			/* 0x03a0 */
+	unsigned int	seq_wifi_transition1;
+	unsigned int	seq_wifi_transition2;
+	unsigned int	seq_wifi_transition3;
+	unsigned int	seq_wifi_transition4;			/* 0x03b0 */
+	unsigned int	seq_wifi_transition5;
+	unsigned int	seq_wifi_transition6;
+	unsigned int	seq_wifi_transition7;
+	unsigned int	res7[16];
+	unsigned int	swreset;				/* 0x0400 */
+	unsigned int	rst_stat;
+	unsigned int	automatic_disable_wdt;
+	unsigned int	mask_wdt_reset_request;
+	unsigned int	mask_wreset_request;			/* 0x0410 */
+	unsigned int	cpu_reset_disable_from_wdt_reset;
+	unsigned int	cpu_reset_disable_from_soft_reset;
+	unsigned int	reset_sequencer_stat;
+	unsigned int	reset_sequencer_opt;			/* 0x0420 */
+	unsigned int	res8[1];
+	unsigned int	reset_sequencer_duration0;
+	unsigned int	reset_sequencer_duration1;
+	unsigned int	reset_sequencer_duration2;		/* 0x0430 */
+	unsigned int	reset_sequencer_duration3;
+	unsigned int	res9[114];
+	unsigned int	wakeup_stat;				/* 0x0600 */
+	unsigned int	eint_wakeup_mask;
+	unsigned int	wakeup_mask;
+	unsigned int	wakeup_interrupt;
+	unsigned int	trtc_control;				/* 0x0610 */
+	unsigned int	res10[120];
+	unsigned int	inform0;				/* 0x0800 */
+	unsigned int	inform1;
+	unsigned int	inform2;
+	unsigned int	inform3;
+	unsigned int	sysip_dat0;				/* 0x0810 */
+	unsigned int	sysip_dat1;
+	unsigned int	sysip_dat2;
+	unsigned int	sysip_dat3;
+	unsigned	res11[8];
+	unsigned int	inform4;				/* 0x0840 */
+	unsigned int	inform5;
+	unsigned int	inform6;
+	unsigned int	inform7;
+	unsigned int	inform8;				/* 0x0850 */
+	unsigned int	inform9;
+	unsigned int	inform10;
+	unsigned int	inform11;
+	unsigned int	res12[40];
+	unsigned int	pmu_spare0;				/* 0x0900 */
+	unsigned int	pmu_spare1;
+	unsigned int	pmu_spare2;
+	unsigned int	pmu_spare3;
+	unsigned int	res13[28];
+	unsigned int	irom_data_reg0;				/* 0x0980 */
+	unsigned int	irom_data_reg1;
+	unsigned int	irom_data_reg2;
+	unsigned int	irom_data_reg3;
+	unsigned int	res14[28];
+	unsigned int	pmu_debug;				/* 0x0a00 */
+	unsigned int	arm_control_opt;
+	unsigned int	pmu_debug1;
+	unsigned int	res15[317];
+	unsigned int	pmudbg_central_seq_stat;		/* 0x0f00 */
+	unsigned int	pmudbg_cr4_status;
+	unsigned int	res16[2];
+	unsigned int	pmudbg_cm0_status;			/* 0x0f10 */
+	unsigned int	res17[59];
+	unsigned int	cr4_sys_pwr_reg;			/* 0x1000 */
+	unsigned int	dis_irq_cr4_local_sys_pwr_reg;
+	unsigned int	dis_irq_cr4_central_sys_pwr_reg;
+	unsigned int	res18[61];
+	unsigned int	clkstop_cmu_top_sys_pwr_reg;		/* 0x1100 */
+	unsigned int	force_autoclkgate_cmu_top_sys_pwr_reg;
+	unsigned int	res19[14];
+	unsigned int	disable_pll_cmu_top_sys_pwr_reg;	/* 0x1140 */
+	unsigned int	res20[15];
+	unsigned int	top_bus_sys_pwr_reg;			/* 0x1180 */
+	unsigned int	res21[8];
+	unsigned int	oscclk_gate_sys_pwr_reg;		/* 0x11a4 */
+	unsigned int	res22[15];
+	unsigned int	memory_srama_sys_pwr_reg;		/* 0x11e4 */
+	unsigned int	memory_sramw_sys_pwr_reg;		/* 0x11e8 */
+	unsigned int	res23[37];
+	unsigned int	tcxo_sys_pwr_reg;			/* 0x1280 */
+	unsigned int	res24[39];
+	unsigned int	reset_ahead_wifi_sys_pwr_reg;		/* 0x1320 */
+	unsigned int	cleany_bus_wifi_sys_pwr_reg;
+	unsigned int	logic_reset_wifi_sys_pwr_reg;
+	unsigned int	tcxo_gate_wifi_sys_pwr_reg;
+	unsigned int	reset_asb_wifi_sys_pwr_reg;		/* 0x1330 */
+	unsigned int	res25[38];
+	unsigned int	clkstop_open_cmu_sss_sys_pwr_reg;	/* 0x13cc */
+	unsigned int	res26[15];
+	unsigned int	sss_sys_pwr_reg;			/* 0x140c */
+	unsigned int	res27[15];
+	unsigned int	force_autoclkgate_cmu_sss_sys_pwr_reg;	/* 0x144c */
+	unsigned int	res28[15];
+	unsigned int	clkstop_cmu_sss_sys_pwr_reg;		/* 0x148c */
+	unsigned int	res29[15];
+	unsigned int	disable_pll_cmu_sss_sys_pwr_reg;	/* 0x14cc */
+	unsigned int	res30[15];
+	unsigned int	reset_logic_sss_sys_pwr_reg;		/* 0x150c */
+	unsigned int	res31[15];
+	unsigned int	memory_sss_sys_pwr_reg;			/* 0x154c */
+	unsigned int	res32[684];
+	unsigned int	cr4_conf;				/* 0x2000 */
+	unsigned int	cr4_status;
+	unsigned int	cr4_option;
+	unsigned int	cr4_reset;
+	unsigned int	cr4_duration0;				/* 0x2010 */
+	unsigned int	cr4_duration1;
+	unsigned int	cr4_duration2;
+	unsigned int	cr4_duration3;
+	unsigned int	res33[123];
+	unsigned int	cm0_reset;				/* 0x220c */
+	unsigned int	cm0_duration0;				/* 0x2210 */
+	unsigned int	cm0_duration1;
+	unsigned int	cm0_duration2;
+	unsigned int	cm0_duration3;
+	unsigned int	res34[376];
+	unsigned int	clkstop_cmu_top_conf;			/* 0x2800 */
+	unsigned int	clkstop_cmu_stop_stat;
+	unsigned int	clkstop_cmu_top_opt;
+	unsigned int	res35[1];
+	unsigned int	clkstop_cmu_top_duration0;		/* 0x2810 */
+	unsigned int	clkstop_cmu_top_duration1;
+	unsigned int	clkstop_cmu_top_duration2;
+	unsigned int	clkstop_cmu_top_duration3;
+	unsigned int	force_autoclkgate_cmu_top_conf;		/* 0x2820 */
+	unsigned int	force_autoclkgate_cmu_top_stat;
+	unsigned int	force_autoclkgate_cmu_top_opt;
+	unsigned int	res36[1];
+	unsigned int	force_autoclkgate_cmu_top_duration0;	/* 0x2830 */
+	unsigned int	force_autoclkgate_cmu_top_duration1;
+	unsigned int	force_autoclkgate_cmu_top_duration2;
+	unsigned int	force_autoclkgate_cmu_top_duration3;
+	unsigned int	res37[8];
+	unsigned int	reset_cmu_top_confi;			/* 0x2860 */
+	unsigned int	reset_cmu_top_stat;
+	unsigned int	reset_cmu_top_opt;
+	unsigned int	res38[1];
+	unsigned int	reset_cmu_top_duration0;		/* 0x2870 */
+	unsigned int	reset_cmu_top_duration1;
+	unsigned int	reset_cmu_top_duration2;
+	unsigned int	reset_cmu_top_duration3;
+	unsigned int	res39[96];
+	unsigned int	disable_pll_cmu_top_conf;		/* 0x2a00 */
+	unsigned int	disable_pll_cmu_top_stat;
+	unsigned int	disable_pll_cmu_top_opt;
+	unsigned int	res40[1];
+	unsigned int	disable_pll_cmu_top_duration0;		/* 0x2a10 */
+	unsigned int	disable_pll_cmu_top_duration1;
+	unsigned int	disable_pll_cmu_top_duration2;
+	unsigned int	disable_pll_cmu_top_duration3;
+	unsigned int	res41[120];
+	unsigned int	top_bus_conf;				/* 0x2c00 */
+	unsigned int	top_bus_stat;
+	unsigned int	top_bus_opt;
+	unsigned int	res42[1];
+	unsigned int	top_bus_duration0;			/* 0x2c10 */
+	unsigned int	top_bus_duration1;
+	unsigned int	top_bus_duration2;
+	unsigned int	top_bus_duration3;
+	unsigned int	res43[56];
+	unsigned int	logic_reset_conf;			/* 0x2d00 */
+	unsigned int	logic_reset_stat;
+	unsigned int	logic_reset_opt;
+	unsigned int	res44[1];
+	unsigned int	logic_reset_duration0;			/* 0x2d10 */
+	unsigned int	logic_reset_duration1;
+	unsigned int	logic_reset_duration2;
+	unsigned int	logic_reset_duration3;
+	unsigned int	oscclk_gate_conf;			/* 0x2d20 */
+	unsigned int	oscclk_gate_stat;
+	unsigned int	oscclk_gate_opt;
+	unsigned int	res45[1];
+	unsigned int	oscclk_gate_duration0;			/* 0x2d30 */
+	unsigned int	oscclk_gate_duration1;
+	unsigned int	oscclk_gate_duration2;
+	unsigned int	oscclk_gate_duration3;
+	unsigned int	res46[120];
+	unsigned int	memory_srama_conf;			/* 0x2f20 */
+	unsigned int	memory_srama_status;
+	unsigned int	memory_srama_opt;
+	unsigned int	res47[1];
+	unsigned int	memory_srama_duration0;			/* 0x2f30 */
+	unsigned int	memory_srama_duration1;
+	unsigned int	memory_srama_duration2;
+	unsigned int	memory_srama_duration3;
+	unsigned int	memory_sramw_conf;			/* 0x2f40 */
+	unsigned int	memory_sramw_status;
+	unsigned int	memory_sramw_opt;
+	unsigned int	res48[1];
+	unsigned int	memory_sramw_duration0;			/* 0x2f50 */
+	unsigned int	memory_sramw_duration1;
+	unsigned int	memory_sramw_duration2;
+	unsigned int	memory_sramw_duration3;
+	unsigned int	res49[297];
+	unsigned int	tcxo_stat;				/* 0x3404 */
+	unsigned int	tcxo_opt;
+	unsigned int	res50[1];
+	unsigned int	tcxo_duration0;				/* 0x3410 */
+	unsigned int	tcxo_duration1;
+	unsigned int	tcxo_duration2;
+	unsigned int	tcxo_duration3;
+	unsigned int	res51[656];
+	unsigned int	clkstop_open_cmu_sss_conf;		/* 0x3e60 */
+	unsigned int	clkstop_open_cmu_sss_stat;
+	unsigned int	clkstop_open_cmu_sss_opt;
+	unsigned int	res52[1];
+	unsigned int	clkstop_open_cmu_sss_duration0;		/* 0x3e70 */
+	unsigned int	clkstop_open_cmu_sss_duration1;
+	unsigned int	clkstop_open_cmu_sss_duration2;
+	unsigned int	clkstop_open_cmu_sss_duration3;
+	unsigned int	res53[120];
+	unsigned int	sss_conf;				/* 0x4060 */
+	unsigned int	sss_stat;
+	unsigned int	sss_opt;
+	unsigned int	res54[1];
+	unsigned int	sss_duration0;				/* 0x4070 */
+	unsigned int	sss_duration1;
+	unsigned int	sss_duration2;
+	unsigned int	sss_duration3;
+	unsigned int	cm0_conf;				/* 0x4080 */
+	unsigned int	cm0_stat;
+	unsigned int	res55[118];
+	unsigned int	force_autoclkgate_cmu_sss_conf;		/* 0x4260 */
+	unsigned int	force_autoclkgate_cmu_sss_stat;
+	unsigned int	force_autoclkgate_cmu_sss_opt;
+	unsigned int	res56[1];
+	unsigned int	force_autoclkgate_cmu_sss_duration0;	/* 0x4270 */
+	unsigned int	force_autoclkgate_cmu_sss_duration1;
+	unsigned int	force_autoclkgate_cmu_sss_duration2;
+	unsigned int	force_autoclkgate_cmu_sss_duration3;
+	unsigned int	res57[120];
+	unsigned int	clkstop_cmu_sss_conf;			/* 0x4460 */
+	unsigned int	clkstop_cmu_sss_stat;
+	unsigned int	clkstop_cmu_sss_opt;
+	unsigned int	res58[1];
+	unsigned int	clkstop_cmu_sss_duration0;		/* 0x4470 */
+	unsigned int	clkstop_cmu_sss_duration1;
+	unsigned int	clkstop_cmu_sss_duration2;
+	unsigned int	clkstop_cmu_sss_duration3;
+	unsigned int	res59[120];
+	unsigned int	disable_pll_cmu_sss_conf;		/* 0x4660 */
+	unsigned int	disable_pll_cmu_sss_stat;
+	unsigned int	disable_pll_cmu_sss_opt;
+	unsigned int	res60[1];
+	unsigned int	disable_pll_cmu_sss_duration0;		/* 0x4670 */
+	unsigned int	disable_pll_cmu_sss_duration1;
+	unsigned int	disable_pll_cmu_sss_duration2;
+	unsigned int	disable_pll_cmu_sss_duration3;
+	unsigned int	res61[120];
+	unsigned int	reset_logic_sss_conf;			/* 0x4860 */
+	unsigned int	reset_logic_sss_stat;
+	unsigned int	reset_logic_sss_opt;
+	unsigned int	res62[1];
+	unsigned int	reset_logic_sss_duration0;		/* 0x4870 */
+	unsigned int	reset_logic_sss_duration1;
+	unsigned int	reset_logic_sss_duration2;
+	unsigned int	reset_logic_sss_duration3;
+	unsigned int	res63[120];
+	unsigned int	memory_sss_conf;			/* 0x4a60 */
+	unsigned int	memory_sss_stat;
+	unsigned int	memory_sss_opt;
+	unsigned int	res64[1];
+	unsigned int	memory_sss_duration0;			/* 0x4a70 */
+	unsigned int	memory_sss_duration1;
+	unsigned int	memory_sss_duration2;
+	unsigned int	memory_sss_duration3;
+	unsigned int	res65[120];
+	unsigned int	reset_cmu_sss_conf;			/* 0x4c60 */
+	unsigned int	reset_cmu_sss_stat;
+	unsigned int	reset_cmu_sss_opt;
+	unsigned int	res66[1];
+	unsigned int	reset_cmu_sss_duration0;		/* 0x4c70 */
+	unsigned int	reset_cmu_sss_duration1;
+	unsigned int	reset_cmu_sss_duration2;
+	unsigned int	reset_cmu_sss_duration3;
+	unsigned int	res67[226];
+	unsigned int	system_info;				/* 0x5008 */
+	unsigned int	res68[5];
+	unsigned int	reset_ahead_wifi_conf;			/* 0x5020 */
+	unsigned int	reset_ahead_wifi_stat;
+	unsigned int	reset_ahead_wifi_opt;
+	unsigned int	res69[1];
+	unsigned int	reset_ahead_wifi_duration0;		/* 0x5030 */
+	unsigned int	reset_ahead_wifi_duration1;
+	unsigned int	reset_ahead_wifi_duration2;
+	unsigned int	reset_ahead_wifi_duration3;
+	unsigned int	cleany_bus_wifi_conf;			/* 0x5040 */
+	unsigned int	cleany_bus_wifi_stat;
+	unsigned int	cleany_bus_wifi_opt;
+	unsigned int	res70[1];
+	unsigned int	cleany_bus_wifi_duration0;		/* 0x5050 */
+	unsigned int	cleany_bus_wifi_duration1;
+	unsigned int	cleany_bus_wifi_duration2;
+	unsigned int	cleany_bus_wifi_duration3;
+	unsigned int	logic_reset_wifi_conf;			/* 0x5060 */
+	unsigned int	logic_reset_wifi_stat;
+	unsigned int	logic_reset_wifi_opt;
+	unsigned int	res71[1];
+	unsigned int	logic_reset_wifi_duration0;		/* 0x5070 */
+	unsigned int	logic_reset_wifi_duration1;
+	unsigned int	logic_reset_wifi_duration2;
+	unsigned int	logic_reset_wifi_duration3;
+	unsigned int	tcxo_gate_wifi_conf;			/* 0x5080 */
+	unsigned int	tcxo_gate_wifi_stat;
+	unsigned int	tcxo_gate_wifi_opt;
+	unsigned int	res72[1];
+	unsigned int	tcxo_gate_wifi_duration0;		/* 0x5090 */
+	unsigned int	tcxo_gate_wifi_duration1;
+	unsigned int	tcxo_gate_wifi_duration2;
+	unsigned int	tcxo_gate_wifi_duration3;
+	unsigned int	reset_asb_wifi_conf;			/* 0x50a0 */
+	unsigned int	reset_asb_wifi_stat;
+	unsigned int	reset_asb_wifi_opt;
+	unsigned int	res73[1];
+	unsigned int	reset_asb_wifi_duration0;		/* 0x50b0 */
+	unsigned int	reset_asb_wifi_duration1;
+	unsigned int	reset_asb_wifi_duration2;
+	unsigned int	reset_asb_wifi_duration3;
+	unsigned int	res74[1488];
+	unsigned int	irq_selection;				/* 0x6800 */
+	unsigned int	res75[1601];
+	unsigned int	cm0_option;				/* 0x8108 */
+	unsigned int	res76[253];
+	unsigned int	ldo1_ctrl;				/* 0x8500 */
+	unsigned int	ldo2_ctrl;
+	unsigned int	ldo3_ctrl;
+	unsigned int	ldo4_ctrl;
+	unsigned int	ldo5_ctrl;				/* 0x8510 */
+	unsigned int	ldo6_ctrl;
+};
+
 struct exynos4_power {
 	unsigned int	om_stat;
 	unsigned char	res1[0x8];
