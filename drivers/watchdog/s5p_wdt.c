@@ -35,6 +35,7 @@ void wdt_start(unsigned int timeout)
 	wtcon |= (WTCON_EN | WTCON_CLK(WTCON_CLK_128));
 	wtcon &= ~WTCON_INT;
 	wtcon |= WTCON_RESET;
+	wtcon &= ~WTCON_PRESCALER_MASK;
 	wtcon |= WTCON_PRESCALER(PRESCALER_VAL);
 
 	writel(timeout, &wdt->wtdat);
