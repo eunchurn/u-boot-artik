@@ -47,6 +47,15 @@ int board_init(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
+#ifndef CONFIG_SYS_NO_FLASH
+	/* set protection on BL1 and BL2 region so that we do not touch it */
+	flash_protect(FLAG_PROTECT_SET,
+			CONFIG_SYS_FLASH_BASE,
+			CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET +
+							CONFIG_ENV_SIZE - 1,
+			&flash_info[0]);
+#endif
+
 	return 0;
 }
 #endif /* CONFIG_MISC_INIT_R */
