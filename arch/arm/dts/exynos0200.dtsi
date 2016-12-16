@@ -18,6 +18,7 @@
  */
 
 #include "skeleton.dtsi"
+#include "exynos0200-pinctrl.dtsi"
 #include <dt-bindings/clock/exynos0200-clk.h>
 
 / {
@@ -103,5 +104,10 @@
 		clock-names = "register", "baud";
 		interrupts = <0 55 0>;
 		id = <4>;
+	};
+
+	pinctrl: pinctrl@0x80040000 {
+		compatible = "samsung,exynos4210-pinctrl";
+		reg = <0x80040000 0x1000>;
 	};
 };
