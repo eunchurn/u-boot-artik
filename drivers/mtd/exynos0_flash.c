@@ -372,9 +372,14 @@ static int exynos0_sflash_ofdata_to_platdata(struct udevice *dev)
 {
 	struct exynos0_sflash_platdata *pdata = dev_get_platdata(dev);
 
-	/* TODO: decode regs in FDT */
-	pdata->regs = (struct exynos0_sflash_regs *) 0x80310000;
-	pdata->base = (void *) 0x04000000;
+	pdata->regs = (struct exynos0_sflash_regs *)
+					dev_get_addr_name(dev, "ctrl");
+	if (!pdata->regs)
+		return -EINVAL;
+
+	pdata->base = (void *) dev_get_addr_name(dev, "mem");
+	if (!pdata->base)
+		return -EINVAL;
 
 	return 0;
 }

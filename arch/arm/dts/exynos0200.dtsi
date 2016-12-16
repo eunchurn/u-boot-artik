@@ -57,6 +57,7 @@
 		compatible = "samsung,exynos0200-sflash";
 		reg = <0x80310000 0x100>,
 		      <0x04000000 0x1000000>;
+		reg-names = "ctrl", "mem";
 	};
 
 	serial@80180000 {
