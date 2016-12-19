@@ -27,7 +27,7 @@ CONFIG_CMD_MEMORY=y
 # CONFIG_CMD_BOOTEFI is not set
 # CONFIG_CMD_ELF is not set
 # CONFIG_CMD_FDT is not set
-# CONFIG_CMD_RUN is not set
+CONFIG_CMD_RUN=y
 # CONFIG_CMD_IMI is not set
 # CONFIG_CMD_IMLS is not set
 # CONFIG_CMD_XIMG is not set
