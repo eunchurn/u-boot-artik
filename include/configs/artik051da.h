@@ -36,4 +36,8 @@
 	"setexpr r *${rescue_gpio} \\\\& ${rescue_bitmask};\0"		\
 	"update_bootaddr=setenv bootaddr ${parta}"
 
+#define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
+#define CONFIG_SYS_BOOTCOUNT_ADDR	0x80090810
+
 #endif	/* __CONFIG_ARTIK051DA_H */

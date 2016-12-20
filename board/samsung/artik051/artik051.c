@@ -4,6 +4,7 @@
 #include <asm/arch/pinmux.h>
 #include <dm/pinctrl.h>
 #include <watchdog.h>
+#include <bootcount.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -63,3 +64,44 @@ int misc_init_r(void)
 void relocate_vectors(void)
 {
 }
+
+#ifdef CONFIG_SYS_BOOTCOUNT_ADDR
+#if !defined(CONFIG_BOOTCOUNT_RAM) && !defined(CONFIG_BOOTCOUNT_ENV)
+void bootcount_store(ulong a)
+{
+	void *reg = (void *)CONFIG_SYS_BOOTCOUNT_ADDR;
+
+#if defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD)
+	raw_bootcount_store(reg, (BOOTCOUNT_MAGIC & 0xffff0000) | a);
+#else
+	raw_bootcount_store(reg, a);
+	raw_bootcount_store(reg + 4, BOOTCOUNT_MAGIC);
+#endif /* defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD */
+}
+
+ulong bootcount_load(void)
+{
+	struct exynos0200_power *pmu =
+		(struct exynos0200_power *) samsung_get_base_power();
+	void *reg = (void *)CONFIG_SYS_BOOTCOUNT_ADDR;
+
+	/* other than that watchdog barked */
+	if ((readl(&pmu->rst_stat) & (1 << 23)) == 0)
+		return 0;
+
+#if defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD)
+	u32 tmp = raw_bootcount_load(reg);
+
+	if ((tmp & 0xffff0000) != (BOOTCOUNT_MAGIC & 0xffff0000))
+		return 0;
+	else
+		return (tmp & 0x0000ffff);
+#else
+	if (raw_bootcount_load(reg + 4) != BOOTCOUNT_MAGIC)
+		return 0;
+	else
+		return raw_bootcount_load(reg);
+#endif /* defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD) */
+}
+#endif
+#endif /* CONFIG_SYS_BOOTCOUNT_ADDR */
