@@ -1,0 +1,41 @@
+/*
+ * ARTIK-051 board device tree source
+ *
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ *              http://www.samsung.com
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+#include "exynos0200.dtsi"
+
+/ {
+	model = "ARTIK-051 based on Exynos T20 (DA variant)";
+	compatible = "samsung,artik051", "samsung,exynos0200";
+
+	aliases {
+		serial0 = "/serial@80180000";
+		console = "/serial@80180000";
+	};
+
+	serial@80180000 {
+		status = "okay";
+	};
+
+	serial@80200000 {
+		status = "okay";
+	};
+
+	serial@80210000 {
+		status = "okay";
+	};
+
+	serial@80220000 {
+		status = "okay";
+	};
+
+	serial@80230000 {
+		status = "okay";
+	};
+};
