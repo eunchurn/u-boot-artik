@@ -322,19 +322,43 @@ int flash_erase(flash_info_t *info, int s_first, int s_last)
 {
 	struct mtd_info *mtd = info->mtd;
 	struct erase_info instr;
-	int ret;
+	int ret = 0;
+	int prot = 0;
+	flash_sect_t sect;
+
+	if (s_first < 0 || s_first > s_last) {
+		puts("- no sectors to erase\n");
+		return 1;
+	}
+
+	for (sect = s_first; sect <= s_last; ++sect)
+		if (info->protect[sect])
+			prot++;
+
+	if (prot) {
+		printf("- Warning: %d protected sectors will not be erased!\n",
+				prot);
+	} else {
+		putc('\n');
+	}
 
 	memset(&instr, 0, sizeof(instr));
-	instr.mtd = mtd;
-	instr.addr = mtd->erasesize * s_first;
-	instr.len = mtd->erasesize * (s_last + 1 - s_first);
 
-	ret = mtd_erase(mtd, &instr);
-	if (ret)
-		return ERR_PROTECTED;
+	for (sect = s_first; sect <= s_last; sect++) {
+		if (info->protect[sect] == 0) {
+			instr.mtd  = mtd;
+			instr.addr = mtd->erasesize * sect;
+			instr.len  = mtd->erasesize;
+
+			if (mtd_erase(mtd, &instr))
+				ret = 1;
+			else
+				putc('.');
+		}
+	}
 
 	puts(" done\n");
-	return 0;
+	return ret;
 }
 
 int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
