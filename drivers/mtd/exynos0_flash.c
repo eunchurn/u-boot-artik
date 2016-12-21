@@ -119,7 +119,6 @@ static int exynos0_sflash_erase(struct mtd_info *mtd, struct erase_info *instr)
 	size_t addr = instr->addr;
 	size_t len = instr->len;
 	size_t end = addr + len;
-	u32 sect;
 	u32 *flash, *last;
 
 	instr->state = MTD_ERASING;
@@ -145,11 +144,8 @@ static int exynos0_sflash_erase(struct mtd_info *mtd, struct erase_info *instr)
 		}
 
 		if (flash < last) {
-			sect = addr & ~(mtd->erasesize - 1);
-
 			sflash_write_enable(regs);
-
-			sflash_erase_sector(regs, sect);
+			sflash_erase_sector(regs, addr);
 
 			while (sflash_read_status(regs) & 0x01) {
 				/* write in progress */
