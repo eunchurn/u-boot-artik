@@ -26,15 +26,31 @@
 	"    run do_boot;"
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	"altbootcmd= setenv compare -le; run do_boot;\0"		\
+	"bootlimit=3\0"							\
 	"do_rescue=echo Restoring to factory image...\0"		\
 	"do_boot=run update_bootaddr; go ${bootaddr}\0"			\
+	"compare=-ge\0"							\
 	"parta=0x04040020\0"						\
 	"partb=0x04320020\0"						\
+	"parta_date=0x0423fffc\0"					\
+	"partb_date=0x0451fffc\0"					\
 	"rescue_gpio=0x800400a4\0"					\
 	"rescue_bitmask=0x1\0"						\
 	"do_checkrescue="						\
 	"setexpr r *${rescue_gpio} \\\\& ${rescue_bitmask};\0"		\
-	"update_bootaddr=setenv bootaddr ${parta}"
+	"update_bootaddr= \n"						\
+	"    if itest *${parta_date} ${compare} *${partb_date}; then\n"	\
+	"        setenv bootaddr ${parta};\n"				\
+	"    else\n"							\
+	"        setenv bootaddr ${partb};\n"				\
+	"    fi\n"							\
+	"    if itest *${parta_date} -eq ffffffff; then\n"		\
+	"        setenv bootaddr ${partb}; \n"				\
+	"    fi\n"							\
+	"    if itest *${partb_date} -eq ffffffff; then\n"		\
+	"        setenv bootaddr ${parta};\n"				\
+	"    fi\0"
 
 #define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
