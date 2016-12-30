@@ -6,3 +6,4 @@
 #
 
 obj-y	:= artik051.o
+obj-$(CONFIG_SECURE_BOOT) += artik051_secure.o
