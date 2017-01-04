@@ -13,22 +13,23 @@
 #include <configs/artik051.h>
 
 #define CONFIG_BOOTCOMMAND	"\n"					\
-	"    c=0;\n"							\
-	"    r=1;\n"							\
-	"    while test ${c} -lt 10 && test ${r} -eq 1; do\n"		\
-	"        run do_checkrescue;\n"					\
-	"        sleep 0.1;\n"						\
-	"        setexpr c ${c} + 1;\n"					\
-	"    done\n"							\
-	"    if test ${r} -eq 1; then\n"				\
-	"        run do_rescue;\n"					\
+	"    if env exists do_rescue; then\n"				\
+	"        c=0;\n"						\
+	"        r=1;\n"						\
+	"        while test ${c} -lt 10 && test ${r} -eq 1; do\n"	\
+	"            run do_checkrescue;\n"				\
+	"            sleep 0.1;\n"					\
+	"            setexpr c ${c} + 1;\n"				\
+	"        done\n"						\
+	"        if test ${r} -eq 1; then\n"				\
+	"            run do_rescue;\n"					\
+	"        fi\n"							\
 	"    fi\n"							\
 	"    run do_boot;"
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"altbootcmd= setenv compare -le; run do_boot;\0"		\
 	"bootlimit=3\0"							\
-	"do_rescue=echo Restoring to factory image...\0"		\
 	"do_boot=run update_bootaddr; go ${bootaddr}\0"			\
 	"compare=-ge\0"							\
 	"parta=0x04040020\0"						\
