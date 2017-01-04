@@ -38,15 +38,15 @@
 	"rescue_gpio=0x800400a4\0"					\
 	"rescue_bitmask=0x1\0"						\
 	"do_checkrescue="						\
-	"setexpr r *${rescue_gpio} \\\\& ${rescue_bitmask};\0"		\
-	"update_bootaddr= \n"						\
+	    "setexpr r *${rescue_gpio} \\\\& ${rescue_bitmask};\0"	\
+	"update_bootaddr=\n"						\
 	"    if itest *${parta_date} ${compare} *${partb_date}; then\n"	\
 	"        setenv bootaddr ${parta};\n"				\
 	"    else\n"							\
 	"        setenv bootaddr ${partb};\n"				\
 	"    fi\n"							\
 	"    if itest *${parta_date} -eq ffffffff; then\n"		\
-	"        setenv bootaddr ${partb}; \n"				\
+	"        setenv bootaddr ${partb};\n"				\
 	"    fi\n"							\
 	"    if itest *${partb_date} -eq ffffffff; then\n"		\
 	"        setenv bootaddr ${parta};\n"				\
