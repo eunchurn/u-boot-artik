@@ -178,23 +178,38 @@ static int exynos0_sflash_read(struct mtd_info *mtd, loff_t from, size_t len,
 static int exynos0_sflash_write(struct mtd_info *mtd, loff_t to, size_t len,
 		size_t *retlen, const u_char *buf)
 {
+	size_t remaining = len;
 	struct udevice *dev = mtd->dev;
 	struct exynos0_sflash_platdata *pdata = dev_get_platdata(dev);
 	struct exynos0_sflash_regs *regs = pdata->regs;
 
 	sflash_write_enable(regs);
 
-	memcpy_toio(pdata->base + to, buf, len);
+	while (remaining) {
+		int tmp = remaining;
 
-	/* check whether write triggered a illegal write interrupt */
-	while (sflash_read_status(regs) & 0x01) {
-		/* write in progress */
-		if (ctrlc()) {
-			puts("<INTERRUPT>\n");
-			break;
+		if (tmp > mtd->erasesize)
+			tmp = mtd->erasesize;
+
+		WATCHDOG_RESET();
+
+		memcpy_toio(pdata->base + to, buf, tmp);
+
+		/* check whether write triggered a illegal write interrupt */
+		while (sflash_read_status(regs) & 0x01) {
+			/* write in progress */
+			if (ctrlc()) {
+				puts("<INTERRUPT>\n");
+				goto out;
+			}
 		}
+
+		to += tmp;
+		buf += tmp;
+		remaining -= tmp;
 	}
 
+out:
 	sflash_write_disable(regs);
 
 	*retlen = len;
