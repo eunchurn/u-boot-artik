@@ -12,6 +12,9 @@
 
 #include <configs/artik051.h>
 
+#ifdef CONFIG_BOOTCOMMAND
+#undef CONFIG_BOOTCOMMAND
+#endif
 #define CONFIG_BOOTCOMMAND	"\n"					\
 	"    if env exists do_rescue; then\n"				\
 	"        c=0;\n"						\
@@ -27,6 +30,9 @@
 	"    fi\n"							\
 	"    run do_boot;"
 
+#ifdef CONFIG_EXTRA_ENV_SETTINGS
+#undef CONFIG_EXTRA_ENV_SETTINGS
+#endif
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"altbootcmd= setenv compare -le; run do_boot;\0"		\
 	"bootlimit=3\0"							\
