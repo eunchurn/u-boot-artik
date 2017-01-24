@@ -12,6 +12,11 @@
 
 #include <configs/artik051.h>
 
+#ifdef CONFIG_BOOTDELAY
+#undef CONFIG_BOOTDELAY
+#endif
+#define CONFIG_BOOTDELAY	0
+
 #ifdef CONFIG_BOOTCOMMAND
 #undef CONFIG_BOOTCOMMAND
 #endif
