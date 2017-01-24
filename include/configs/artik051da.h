@@ -34,7 +34,7 @@
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #endif
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	"altbootcmd= setenv compare -le; run do_boot;\0"		\
+	"altbootcmd=setenv compare -le; run do_boot;\0"			\
 	"bootlimit=3\0"							\
 	"do_boot=run update_bootaddr; go ${bootaddr}\0"			\
 	"compare=-ge\0"							\
