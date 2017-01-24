@@ -28,10 +28,11 @@
 
 #define CONFIG_SECURE_BOOT
 
-#ifdef CONFIG_SECURE_BOOT
-#define CONFIG_ENV_IS_NOWHERE
-#else
+/* remove CONFIG_ENV_IS_IN_FLASH before production release */
 #define CONFIG_ENV_IS_IN_FLASH
+
+#ifndef CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_NOWHERE
 #endif
 
 #define CONFIG_ENV_OFFSET		(SZ_1K * 252)
