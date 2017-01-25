@@ -139,7 +139,9 @@ ENTRY(cpu_init_cp15)
 	 * Invalidate L1 I/D
 	 */
 	mov	r0, #0			@ set up for MCR
+#ifndef CONFIG_CPU_V7R
 	mcr	p15, 0, r0, c8, c7, 0	@ invalidate TLBs
+#endif
 	mcr	p15, 0, r0, c7, c5, 0	@ invalidate icache
 	mcr	p15, 0, r0, c7, c5, 6	@ invalidate BP array
 	mcr     p15, 0, r0, c7, c10, 4	@ DSB
