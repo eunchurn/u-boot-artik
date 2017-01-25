@@ -96,6 +96,7 @@ void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 
 __weak void dram_bank_mmu_setup(int bank)
 {
+#ifdef CONFIG_NR_DRAM_BANKS
 	bd_t *bd = gd->bd;
 	int	i;
 
@@ -112,6 +113,7 @@ __weak void dram_bank_mmu_setup(int bank)
 		set_section_dcache(i, DCACHE_WRITEBACK);
 #endif
 	}
+#endif /* CONFIG_NR_DRAM_BANKS */
 }
 
 /* to activate the MMU we need to set up virtual memory: use 1M areas */
@@ -125,9 +127,11 @@ static inline void mmu_setup(void)
 	for (i = 0; i < ((4096ULL * 1024 * 1024) >> MMU_SECTION_SHIFT); i++)
 		set_section_dcache(i, DCACHE_OFF);
 
+#ifdef CONFIG_NR_DRAM_BANKS
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		dram_bank_mmu_setup(i);
 	}
+#endif /* CONFIG_NR_DRAM_BANKS */
 
 #ifdef CONFIG_ARMV7_LPAE
 	/* Set up 4 PTE entries pointing to our 4 1GB page tables */
