@@ -43,10 +43,10 @@
 	"bootlimit=3\0"							\
 	"do_boot=run update_bootaddr; go ${bootaddr}\0"			\
 	"compare=-ge\0"							\
-	"parta=0x04040020\0"						\
-	"partb=0x04320020\0"						\
-	"parta_date=0x0423fffc\0"					\
-	"partb_date=0x0451fffc\0"					\
+	"parta=0x04048020\0"						\
+	"partb=0x04328020\0"						\
+	"parta_date=0x04273ffc\0"					\
+	"partb_date=0x04553ffc\0"					\
 	"rescue_gpio=0x800400a4\0"					\
 	"rescue_bitmask=0x1\0"						\
 	"do_checkrescue="						\
