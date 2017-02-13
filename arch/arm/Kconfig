@@ -135,7 +135,7 @@ config ENABLE_ARM_SOC_BOOT0_HOOK
 
 config USE_ARCH_MEMCPY
 	bool "Use an assembly optimized implementation of memcpy"
-	default y if CPU_V7
+	default y if CPU_V7 || CPU_V7R
 	depends on !ARM64
 	help
 	  Enable the generation of an optimized version of memcpy.
@@ -144,7 +144,7 @@ config USE_ARCH_MEMCPY
 
 config USE_ARCH_MEMSET
 	bool "Use an assembly optimized implementation of memset"
-	default y if CPU_V7
+	default y if CPU_V7 || CPU_V7R
 	depends on !ARM64
 	help
 	  Enable the generation of an optimized version of memset.
