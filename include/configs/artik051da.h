@@ -20,6 +20,7 @@
 #ifdef CONFIG_BOOTCOMMAND
 #undef CONFIG_BOOTCOMMAND
 #endif
+
 #define CONFIG_BOOTCOMMAND	"\n"					\
 	"    if env exists do_rescue; then\n"				\
 	"        c=0;\n"						\
@@ -33,6 +34,7 @@
 	"            run do_rescue;\n"					\
 	"        fi\n"							\
 	"    fi\n"							\
+	"    run cm0_boot;\n"						\
 	"    run do_boot;"
 
 #ifdef CONFIG_EXTRA_ENV_SETTINGS
@@ -41,6 +43,17 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"altbootcmd=setenv compare -le; run do_boot;\0"			\
 	"bootlimit=3\0"							\
+	"cm0=0\0"							\
+	"cm0_boot=\n"							\
+	"    if test ${cm0} -eq 1; then\n"				\
+	"        cp 0x04604000 0x020E0000 0x8000;\n"			\
+	"        mw 0x800a0538 0x20E0\n"				\
+	"        mw 0x800a053C 0x20DA\n"				\
+	"        mw 0x800a0504 0x20\n"					\
+	"        mw 0x800a0540 0x28\n"					\
+	"        mw 0x80098108 0x0\n"					\
+	"        mw 0x80098108 0x8000\n"				\
+	"    fi\0"							\
 	"do_boot=run update_bootaddr; go ${bootaddr}\0"			\
 	"compare=-ge\0"							\
 	"parta=0x04048020\0"						\
