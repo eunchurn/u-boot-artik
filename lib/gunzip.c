@@ -270,6 +270,8 @@ int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
 	z_stream s;
 	int err = 0;
 	int r;
+	int szwritebuf;
+	unsigned char *writebuf;
 
 	s.zalloc = gzalloc;
 	s.zfree = gzfree;
@@ -279,21 +281,38 @@ int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
 		printf("Error: inflateInit2() returned %d\n", r);
 		return -1;
 	}
+
+	szwritebuf = 1 << 12;
+	writebuf = (unsigned char *)malloc_cache_aligned(szwritebuf);
+
 	s.next_in = src + offset;
 	s.avail_in = *lenp - offset;
-	s.next_out = dst;
-	s.avail_out = dstlen;
+	*lenp = 0;
 	do {
-		r = inflate(&s, Z_FINISH);
-		if (stoponerr == 1 && r != Z_STREAM_END &&
+		int numfilled;
+		s.next_out = writebuf;
+		s.avail_out = szwritebuf;
+
+		r = inflate(&s, Z_SYNC_FLUSH);
+		if (stoponerr == 1 && (r != Z_STREAM_END && r != Z_OK) &&
 		    (s.avail_in == 0 || s.avail_out == 0 || r != Z_BUF_ERROR)) {
 			printf("Error: inflate() returned %d\n", r);
 			err = -1;
 			break;
 		}
-	} while (r == Z_BUF_ERROR);
-	*lenp = s.next_out - (unsigned char *) dst;
+
+		numfilled = szwritebuf - s.avail_out;
+		if (dstlen > 0) {
+			numfilled = min(numfilled, dstlen);
+			dstlen -= numfilled;
+		}
+
+		memcpy(dst, writebuf, numfilled);
+		dst += numfilled;
+		*lenp += numfilled;
+	} while (s.avail_out == 0 && dstlen && r != Z_STREAM_END);
 	inflateEnd(&s);
+	free(writebuf);
 
 	return err;
 }
