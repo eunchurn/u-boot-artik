@@ -307,6 +307,17 @@ int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
 			dstlen -= numfilled;
 		}
 
+#ifndef CONFIG_SYS_NO_FLASH
+		if (addr2info((ulong)dst) != NULL) {
+			flash_write((char *)writebuf, (ulong) dst, numfilled);
+
+			if (ctrlc()) {
+				puts("abort\n");
+				break;
+			}
+			WATCHDOG_RESET();
+		} else
+#endif
 		memcpy(dst, writebuf, numfilled);
 		dst += numfilled;
 		*lenp += numfilled;
