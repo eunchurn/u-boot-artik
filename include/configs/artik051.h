@@ -101,4 +101,6 @@
 	"        fi\n"							\
 	"    fi\0"
 
+#define CONFIG_CMD_UNZIP
+
 #endif	/* __CONFIG_ARTIK_051_H */
