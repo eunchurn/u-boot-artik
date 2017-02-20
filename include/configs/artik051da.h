@@ -56,10 +56,10 @@
 	"    fi\0"							\
 	"do_boot=run update_bootaddr; go ${bootaddr}\0"			\
 	"compare=-ge\0"							\
-	"parta=0x04048020\0"						\
-	"partb=0x04328020\0"						\
-	"parta_date=0x04273ffc\0"					\
-	"partb_date=0x04553ffc\0"					\
+	"parta=0x040C8020\0"						\
+	"partb=0x043A8020\0"						\
+	"parta_date=0x0431FFDC\0"					\
+	"partb_date=0x045FFFDC\0"					\
 	"rescue_gpio=0x800400a4\0"					\
 	"rescue_bitmask=0x1\0"						\
 	"do_checkrescue="						\
