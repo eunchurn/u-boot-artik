@@ -24,6 +24,7 @@
 #define CONFIG_BOOTCOMMAND "\n"						\
 	"    if env exists do_rescue; then\n"				\
 	"        c=0;\n"						\
+	"        mw.l 0x800400a8 0x13111111\n"				\
 	"        gpio input ${res_gpio}\n"				\
 	"        while itest $? == 0 && itest ${c} < 50; do\n"		\
 	"            sleep 0.1;\n"					\
@@ -33,6 +34,7 @@
 	"        if itest ${c} >= 50; then\n"				\
 	"            run do_rescue;\n"					\
 	"        fi\n"							\
+	"        mw.l 0x800400a8 0x11111111\n"				\
 	"    fi\n"							\
 	"    run do_boot;"
 
