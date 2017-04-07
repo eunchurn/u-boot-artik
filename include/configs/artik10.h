@@ -33,7 +33,6 @@
 #define CONFIG_CPU_EXYNOS5422_EVT0	/* which is in a Exynos5422 EVT0 */
 #define CONFIG_MACH_ARTIK10		/* which is in a ARTIK10 */
 #define CONFIG_MACH_TYPE		MACH_TYPE_SMDK5422
-#define CONFIG_EXYNOS_HYP_MODE		/* Enable HYP mode */
 
 #include <configs/artik_common.h>
 
