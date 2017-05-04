@@ -44,28 +44,39 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"bootlimit=3\0"							\
 	"do_boot=\n"							\
-	"    setexpr entrypoint ${bootimg} + ${offset}\n"		\
+	"    run do_checkupdate\n"					\
+	"    setexpr entrypoint ${bootpart} + 0x20\n"			\
 	"    go ${entrypoint}\0"					\
 	"do_rescue=\n"							\
-	"    echo restoring to factory image\n"				\
-	"    unzip ${factoryimg} ${bootimg}\n"				\
+	"    echo Factory reset.\n"					\
+	"    echo Erasing boot partitions...\n"				\
+	"    erase ${bootpart} +${bootsize}\n"				\
+	"    echo Flashing factory image...\n"				\
+	"    unzip ${rescuepart} ${bootpart}\n"				\
+	"    reset\0"							\
 	"do_checkupdate=\n"						\
-	"    if itest *${otaimg} -ne 0xffffffff; then\n"		\
-	"        setexpr.l size *0x04320000\n"				\
-	"        setexpr.l crc  *0x04320004\n"				\
-	"        crc32 0x04321000 ${size} 0x02022000\n"			\
+	"    if itest *${otapart} -ne 0xffffffff; then\n"		\
+	"        setexpr.l sizeaddr ${otapart}\n"			\
+	"        setexpr.l crcaddr ${otapart} + 0x4\n"			\
+	"        setexpr.l size *${sizeaddr}\n"				\
+	"        setexpr.l crc  *${crcaddr}\n"				\
+	"        setexpr.l otagz ${otapart} + 0x1000\n"			\
+	"        crc32 ${otagz} ${size} 0x02022000\n"			\
 	"        if itest.l *0x02022000 -eq ${crc}; then\n"		\
-	"            echo Updating boot image...\n"			\
-	"            unzip ${otaimg} ${bootimg}\n"			\
-	"            erase ${otahead} +${otasize}\n"			\
+	"            echo Found an update image downloaded.\n"		\
+	"            erase ${bootpart} +${bootsize}\n"			\
+	"            echo Updating boot partition...\n"			\
+	"            unzip ${otagz} ${bootpart}\n"			\
 	"        fi\n"							\
+	"        erase ${otapart} +${otasize}\n"			\
+	"        echo Done\n"						\
+	"        reset\n"						\
 	"    fi\0"							\
-	"bootimg=0x04040000\0"						\
-	"offset=0x00088020\0"						\
-	"otahead=0x04320000\0"						\
-	"otaimg=0x04321000\0"						\
-	"otasize=0x170000\0"						\
-	"factoryimg=0x04491000\0"					\
+	"bootpart=0x040c8000\0"						\
+	"bootsize=0x258000\0"						\
+	"otapart=0x044a0000\0"						\
+	"otasize=0x180000\0"						\
+	"rescuepart=0x04320000\0"					\
 	"res_gpio=gpg16\0"
 
 #define CONFIG_BOOTCOUNT_LIMIT
