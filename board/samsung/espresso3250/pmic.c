@@ -269,6 +269,18 @@ void pmic_init(void)
 	IIC0_EWrite(S2MPS14_WR_ADDR, RTC_BUF, 0x17);
 	IIC0_EWrite(S2MPS14_WR_ADDR, BUCK2_OUT,
 			WR_BUCK_VOLT(CONFIG_ARM_VOLT) + VDD_BASE_OFFSET);
+
+}
+
+void pmic_enable_wtsr()
+{
+	unsigned char buf = 0;
+	IIC0_ESetport();
+
+	IIC0_ERead(S2MPS14_RTC_RD_ADDR, RTC_WTSR_SMPL, &buf);
+	buf |= WTSREN;
+	buf |= WTSRT;
+	IIC0_EWrite(S2MPS14_RTC_WR_ADDR, RTC_WTSR_SMPL, buf);
 }
 
 void pmic_enable_peric_dev(void)

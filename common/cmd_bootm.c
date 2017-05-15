@@ -30,6 +30,7 @@
 #include <command.h>
 #include <image.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <u-boot/zlib.h>
 #include <bzlib.h>
 #include <environment.h>
@@ -85,11 +86,6 @@ static int do_imls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 #ifdef CONFIG_SILENT_CONSOLE
 static void fixup_silent_linux(void);
-#endif
-
-static image_header_t *image_get_kernel(ulong img_addr, int verify);
-#if defined(CONFIG_FIT)
-static int fit_check_kernel(const void *fit, int os_noffset, int verify);
 #endif
 
 static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -294,7 +290,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 
 #if defined(CONFIG_OF_LIBFDT)
 		/* find flattened device tree */
-		ret = boot_get_fdt(flag, argc, argv, &images,
+		ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
 				   &images.ft_addr, &images.ft_len);
 		if (ret) {
 			puts("Could not find a valid device tree\n");
@@ -778,54 +774,6 @@ static image_header_t *image_get_kernel(ulong img_addr, int verify)
 }
 
 /**
- * fit_check_kernel - verify FIT format kernel subimage
- * @fit_hdr: pointer to the FIT image header
- * os_noffset: kernel subimage node offset within FIT image
- * @verify: data CRC verification flag
- *
- * fit_check_kernel() verifies integrity of the kernel subimage and from
- * specified FIT image.
- *
- * returns:
- *     1, on success
- *     0, on failure
- */
-#if defined(CONFIG_FIT)
-static int fit_check_kernel(const void *fit, int os_noffset, int verify)
-{
-	fit_image_print(fit, os_noffset, "   ");
-
-	if (verify) {
-		puts("   Verifying Hash Integrity ... ");
-		if (!fit_image_check_hashes(fit, os_noffset)) {
-			puts("Bad Data Hash\n");
-			bootstage_error(BOOTSTAGE_ID_FIT_CHECK_HASH);
-			return 0;
-		}
-		puts("OK\n");
-	}
-	bootstage_mark(BOOTSTAGE_ID_FIT_CHECK_ARCH);
-
-	if (!fit_image_check_target_arch(fit, os_noffset)) {
-		puts("Unsupported Architecture\n");
-		bootstage_error(BOOTSTAGE_ID_FIT_CHECK_ARCH);
-		return 0;
-	}
-
-	bootstage_mark(BOOTSTAGE_ID_FIT_CHECK_KERNEL);
-	if (!fit_image_check_type(fit, os_noffset, IH_TYPE_KERNEL) &&
-	    !fit_image_check_type(fit, os_noffset, IH_TYPE_KERNEL_NOLOAD)) {
-		puts("Not a kernel image\n");
-		bootstage_error(BOOTSTAGE_ID_FIT_CHECK_KERNEL);
-		return 0;
-	}
-
-	bootstage_mark(BOOTSTAGE_ID_FIT_CHECKED);
-	return 1;
-}
-#endif /* CONFIG_FIT */
-
-/**
  * boot_get_kernel - find kernel image
  * @os_data: pointer to a ulong variable, will hold os data start address
  * @os_len: pointer to a ulong variable, will hold os data length
@@ -844,12 +792,8 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	image_header_t	*hdr;
 	ulong		img_addr;
 #if defined(CONFIG_FIT)
-	void		*fit_hdr;
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_kernel = NULL;
-	const void	*data;
-	size_t		len;
-	int		cfg_noffset;
 	int		os_noffset;
 #endif
 
@@ -925,73 +869,15 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		fit_hdr = (void *)img_addr;
-		printf("## Booting kernel from FIT Image at %08lx ...\n",
-				img_addr);
-
-		if (!fit_check_format(fit_hdr)) {
-			puts("Bad FIT kernel image format!\n");
-			bootstage_error(BOOTSTAGE_ID_FIT_FORMAT);
+		os_noffset = fit_image_load(images, FIT_KERNEL_PROP,
+				img_addr,
+				&fit_uname_kernel, fit_uname_config,
+				IH_ARCH_DEFAULT, IH_TYPE_KERNEL,
+				BOOTSTAGE_ID_FIT_KERNEL_START,
+				FIT_LOAD_IGNORED, os_data, os_len);
+		if (os_noffset < 0)
 			return NULL;
-		}
-		bootstage_mark(BOOTSTAGE_ID_FIT_FORMAT);
-
-		if (!fit_uname_kernel) {
-			/*
-			 * no kernel image node unit name, try to get config
-			 * node first. If config unit node name is NULL
-			 * fit_conf_get_node() will try to find default config
-			 * node
-			 */
-			bootstage_mark(BOOTSTAGE_ID_FIT_NO_UNIT_NAME);
-			cfg_noffset = fit_conf_get_node(fit_hdr,
-							fit_uname_config);
-			if (cfg_noffset < 0) {
-				bootstage_error(BOOTSTAGE_ID_FIT_NO_UNIT_NAME);
-				return NULL;
-			}
-			/* save configuration uname provided in the first
-			 * bootm argument
-			 */
-			images->fit_uname_cfg = fdt_get_name(fit_hdr,
-								cfg_noffset,
-								NULL);
-			printf("   Using '%s' configuration\n",
-				images->fit_uname_cfg);
-			bootstage_mark(BOOTSTAGE_ID_FIT_CONFIG);
-
-			os_noffset = fit_conf_get_kernel_node(fit_hdr,
-								cfg_noffset);
-			fit_uname_kernel = fit_get_name(fit_hdr, os_noffset,
-							NULL);
-		} else {
-			/* get kernel component image node offset */
-			bootstage_mark(BOOTSTAGE_ID_FIT_UNIT_NAME);
-			os_noffset = fit_image_get_node(fit_hdr,
-							fit_uname_kernel);
-		}
-		if (os_noffset < 0) {
-			bootstage_error(BOOTSTAGE_ID_FIT_CONFIG);
-			return NULL;
-		}
-
-		printf("   Trying '%s' kernel subimage\n", fit_uname_kernel);
-
-		bootstage_mark(BOOTSTAGE_ID_FIT_CHECK_SUBIMAGE);
-		if (!fit_check_kernel(fit_hdr, os_noffset, images->verify))
-			return NULL;
-
-		/* get kernel image data address and length */
-		if (fit_image_get_data(fit_hdr, os_noffset, &data, &len)) {
-			puts("Could not find kernel subimage data!\n");
-			bootstage_error(BOOTSTAGE_ID_FIT_KERNEL_INFO_ERR);
-			return NULL;
-		}
-		bootstage_mark(BOOTSTAGE_ID_FIT_KERNEL_INFO);
-
-		*os_len = len;
-		*os_data = (ulong)data;
-		images->fit_hdr_os = fit_hdr;
+		images->fit_hdr_os = map_sysmem(img_addr, 0);
 		images->fit_uname_os = fit_uname_kernel;
 		images->fit_noffset_os = os_noffset;
 		break;
@@ -1136,7 +1022,7 @@ static int image_info(ulong addr)
 
 		fit_print_contents(hdr);
 
-		if (!fit_all_image_check_hashes(hdr)) {
+		if (!fit_all_image_verify(hdr)) {
 			puts("Bad hash in FIT image!\n");
 			return 1;
 		}
@@ -1579,7 +1465,7 @@ static int bootz_start(cmd_tbl_t *cmdtp, int flag, int argc,
 
 #if defined(CONFIG_OF_LIBFDT)
 	/* find flattened device tree */
-	ret = boot_get_fdt(flag, argc, argv, images,
+	ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, images,
 			   &images->ft_addr, &images->ft_len);
 	if (ret) {
 		puts("Could not find a valid device tree\n");

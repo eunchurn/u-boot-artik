@@ -2380,6 +2380,16 @@ CBFS (Coreboot Filesystem) support
 		Note: There is also a sha1sum command, which should perhaps
 		be deprecated in favour of 'hash sha1'.
 
+- Signing support:
+		CONFIG_RSA
+
+		This enables the RSA algorithm used for FIT image verification
+		in U-Boot. See doc/uImage/signature for more information.
+
+		The signing part is build into mkimage regardless of this
+		option.
+
+
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
 
@@ -2568,6 +2578,17 @@ FIT uImage format:
  -150	common/cmd_nand.c	Incorrect FIT image format
   151	common/cmd_nand.c	FIT image format OK
 
+- FIT image support:
+		CONFIG_FIT
+		Enable support for the FIT uImage format.
+
+		CONFIG_FIT_BEST_MATCH
+		When no configuration is explicitly selected, default to the
+		one whose fdt's compatibility field best matches that of
+		U-Boot itself. A match is considered "best" if it matches the
+		most specific compatibility entry of U-Boot's fdt's root node.
+		The order of entries in the configuration's fdt is ignored.
+
 - Standalone program support:
 		CONFIG_STANDALONE_LOAD_ADDR
 
@@ -2699,6 +2720,13 @@ FIT uImage format:
 
 		CONFIG_SPL_LIBGENERIC_SUPPORT
 		Support for lib/libgeneric.o in SPL binary
+
+		CONFIG_FIT_SPL_PRINT
+		Printing information about a FIT image adds quite a bit of
+		code to SPL. So this is normally disabled in SPL. Use this
+		option to re-enable it. This will affect the output of the
+		bootm command when booting a FIT image.
+
 
 Modem Support:
 --------------

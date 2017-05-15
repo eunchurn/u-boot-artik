@@ -29,6 +29,7 @@
 #define CONFIG_ARCH_EXYNOS		/* which is in a Exynos Family */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
+#include <linux/sizes.h>
 
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
@@ -49,9 +50,6 @@
 #define CONFIG_SYS_TEXT_BASE		0x43E00000
 
 #define CONFIG_SYS_CLK_FREQ		24000000
-
-/*   RAMDUMP MODE */
-#define CONFIG_RAMDUMP_MODE		0xD
 
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
@@ -151,6 +149,34 @@
 #define CONFIG_FASTBOOT_AUTO_REBOOT
 #define CONFIG_FASTBOOT_AUTO_REBOOT_MODE	0x3
 
+/* USB gadget */
+#define CONFIG_USB_GADGET
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
+
+/* Downloader */
+#define CONFIG_G_DNL_VENDOR_NUM		0x04E8
+#define CONFIG_G_DNL_PRODUCT_NUM	0x6601
+#define CONFIG_G_DNL_MANUFACTURER	"Samsung"
+#define CONFIG_USBDOWNLOAD_GADGET
+
+#define CONFIG_SYS_CACHELINE_SIZE	64
+
+/* DFU */
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_DFU_MMC
+#define CONFIG_CMD_DFU
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x02000000
+#define DFU_DEFAULT_POLL_TIMEOUT	300
+
+/* THOR */
+#define CONFIG_G_DNL_THOR_VENDOR_NUM	CONFIG_G_DNL_VENDOR_NUM
+#define CONFIG_G_DNL_THOR_PRODUCT_NUM	0x685D
+#define CONFIG_G_DNL_UMS_VENDOR_NUM 0x0525
+#define CONFIG_G_DNL_UMS_PRODUCT_NUM 0xA4A5
+#define CONFIG_THOR_FUNCTION
+#define CONFIG_CMD_THOR_DOWNLOAD
+
 #define CONFIG_SPL
 #define SDMMC_DEV_OFFSET			0x00000000
 #define EMMC_DEV_OFFSET				0x00000014
@@ -230,7 +256,9 @@
 #include <asm/arch/movi_partition.h>
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20) +	\
+					CONFIG_SYS_DFU_DATA_BUF_SIZE * 2 + \
+					(2 << 20))
 
 /* Configuration of ROOTFS_ATAGS */
 #define CONFIG_ROOTFS_ATAGS
@@ -245,9 +273,40 @@
 #define CONFIG_MODULE_PART	2
 #define CONFIG_ROOT_PART	3
 
+#define CONFIG_SET_DFU_ALT_INFO
+#define CONFIG_SET_DFU_ALT_BUF_LEN	(1 << 10)	/* 1 KB */
+
+#define CONFIG_DFU_ALT_SYSTEM			\
+	"uImage fat 0 1;"			\
+	"zImage fat 0 1;"			\
+	"uInitrd fat 0 1;"			\
+	"boot.scr fat 0 1;"			\
+	"boot.cmd fat 0 1;"			\
+	"exynos5422-artik10.dtb fat 0 1;"	\
+	"exynos3250-artik5.dtb fat 0 1;"	\
+	"boot part 0 1;"			\
+	"modules part 0 2;"			\
+	"rootfs part 0 3;"			\
+	"system-data part 0 4;"			\
+	"user part 0 5\0"
+
+#define CONFIG_DFU_ALT_SYSTEM_SD		\
+	"uImage fat 0 1;"			\
+	"zImage fat 0 1;"			\
+	"uInitrd fat 0 1;"			\
+	"boot.scr fat 0 1;"			\
+	"boot.cmd fat 0 1;"			\
+	"exynos5422-artik10.dtb fat 0 1;"	\
+	"exynos3250-artik5.dtb fat 0 1;"	\
+	"boot part 0 1;"			\
+	"modules part 0 2;"			\
+	"rootfs part 0 3;"			\
+	"system-data part 0 5;"			\
+	"user part 0 6\0"
+
 #define PARTS_DEFAULT							\
 	"uuid_disk=${uuid_gpt_disk};"					\
-	"name=boot,start=1MiB,size=" __stringify(CONFIG_BOOT_PART_SIZE) \
+	"name=boot,start=4MiB,size=" __stringify(CONFIG_BOOT_PART_SIZE) \
 		"MiB,uuid=${uuid_gpt_boot};"				\
 	"name=modules,size=" __stringify(CONFIG_MODULE_PART_SIZE)	\
 		"MiB,uuid=${uuid_gpt_module};"				\
@@ -255,7 +314,7 @@
 
 #define PARTS_TIZEN							\
 	"uuid_disk=${uuid_gpt_disk};"					\
-	"name=boot,start=1MiB,size=" __stringify(CONFIG_BOOT_PART_SIZE) \
+	"name=boot,start=4MiB,size=" __stringify(CONFIG_BOOT_PART_SIZE) \
 		"MiB,uuid=${uuid_gpt_boot};"				\
 	"name=modules,size=" __stringify(CONFIG_MODULE_PART_SIZE)	\
 		"MiB,uuid=${uuid_gpt_module};"				\
@@ -265,7 +324,7 @@
 
 #define PARTS_ANDROID							\
 	"uuid_disk=${uuid_gpt_disk};"					\
-	"name=boot,start=1MiB,size=" __stringify(CONFIG_BOOT_PART_SIZE) \
+	"name=boot,start=4MiB,size=" __stringify(CONFIG_BOOT_PART_SIZE) \
 		"MiB,uuid=${uuid_gpt_boot};"				\
 	"name=system,size=1024MiB,uuid=${uuid_gpt_system};"		\
 	"name=cache,size=128MiB,uuid=${uuid_gpt_cache};"		\
@@ -289,9 +348,14 @@
 	"fdtfile=" CONFIG_FDT_FILE "\0"					\
 	"kernel_file=zImage\0"						\
 	"kernel_addr=40008000\0"					\
+	"vboot_kernel_addr=42000000\0"					\
 	"fdtaddr=40800000\0"						\
 	"initrd_file=uInitrd\0"						\
 	"initrd_addr=43000000\0"					\
+	"dfu_alt_system=" CONFIG_DFU_ALT_SYSTEM				\
+	"dfu_usb_con=0\0"						\
+	"dfu_interface=mmc\0"						\
+	"dfu_device=${emmc_dev}\0"					\
 	"sdrecovery=sdfuse format; sdfuse flashall 3\0"			\
 	"factory_load=factory_info load mmc ${emmc_dev} 0x80 0x8\0"	\
 	"factory_save=factory_info save mmc ${emmc_dev} 0x80 0x8\0"	\
@@ -305,6 +369,9 @@
 		"fatload mmc 0:1 $fdtaddr $fdtfile;"			\
 		"fatload mmc 0:1 $initrd_addr $initrd_file;"		\
 		"bootz $kernel_addr $initrd_addr $fdtaddr\0"		\
+	"boot_cmd_vboot=fatload mmc 0:1 $vboot_kernel_addr $kernel_file;"	\
+		"fatload mmc 0:1 $initrd_addr $initrd_file;"		\
+		"bootm $vboot_kernel_addr $initrd_addr\0"		\
 	"android_boot="							\
 		"setenv bootargs ${console} root=/dev/ram0 "		\
 		"${opts};"						\
@@ -316,14 +383,19 @@
 		"mmc rescan; fastboot\0"				\
 	"recoveryboot=run sdrecovery; setenv recoverymode recovery;"	\
 		"run ramfsboot\0"					\
-	"ramfsboot=run factory_load; setenv bootargs ${console} "	\
+	"recoveryvboot=run sdrecovery; setenv recoverymode recovery;"	\
+		"run vboot\0"						\
+	"load_args=run factory_load; setenv bootargs ${console} "	\
 		"root=/dev/mmcblk${rootdev}p${rootpart} ${root_rw} "	\
 		"rootfstype=ext4 ${opts} ${recoverymode} "		\
-		"asix.macaddr=${ethaddr} bd_addr=${bd_addr};"		\
-		"run boot_cmd_initrd\0"					\
-	"mmcboot=setenv bootargs ${console} "				\
-		"root=/dev/mmcblk${rootdev}p${rootpart} ${root_rw} "	\
-		"rootfstype=ext4 ${opts};run boot_cmd\0"		\
+		"asix.macaddr=${ethaddr} bd_addr=${bd_addr}\0"		\
+	"ramfsboot=run load_args; run boot_cmd_initrd\0"		\
+	"vboot=run load_args; run boot_cmd_vboot\0"			\
+	"mmcboot=run load_args; run boot_cmd\0"				\
+	"hwtestboot=setenv opts loglevel=4 spi-s3c64xx.disable=1;"	\
+		"setenv rootdev 1; run ramfsboot\0"			\
+	"hwtestvboot=setenv opts loglevel=4 spi-s3c64xx.disable=1;"	\
+		"setenv rootdev 1; run vboot\0"			\
 	"bootcmd=run ramfsboot\0"
 
 #endif /* __ARTIK_COMMON_H */

@@ -32,6 +32,10 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/sromc.h>
 #include <asm/arch/sysreg.h>
+#include <asm/unaligned.h>
+#include <usb.h>
+#include <usb/s3c_udc.h>
+#include <mmc.h>
 #include "pmic.h"
 
 #define DEBOUNCE_DELAY	10000
@@ -40,6 +44,18 @@
 DECLARE_GLOBAL_DATA_PTR;
 unsigned int OmPin;
 
+void pwm_early_init(unsigned int channel)
+{
+	struct exynos3_gpio_part1 *bank =
+		(struct exynos3_gpio_part1 *)samsung_get_base_gpio_part1();
+
+	if (channel > 4)
+		return;
+
+	pwm_enable(channel);
+	pwm_disable(channel);
+	s5p_gpio_cfg_pin(&bank->d0, channel, GPIO_FUNC(0x2));
+}
 
 int board_init(void)
 {
@@ -124,6 +140,10 @@ int board_init(void)
 	} else {
 		printf(" Please check OM_pin\n");
 	}
+
+	/* Enable PWM to maintain the PWM output signal to low */
+	pwm_early_init(0);
+	pwm_early_init(1);
 
 	return 0;
 }
@@ -505,6 +525,8 @@ int board_late_init(void)
 	rst_stat = readl(&pmu->rst_stat);
 	printf("rst_stat : 0x%x\n", rst_stat);
 
+	pmic_enable_wtsr();
+
 #if 0
 	pressed_key = check_key();
 #endif
@@ -591,8 +613,8 @@ int board_late_init(void)
 	/*   check reset status for ramdump */
 	if ((rst_stat & (WRESET | SYS_WDTRESET | ISP_ARM_WDTRESET))
 		|| (readl(CONFIG_RAMDUMP_SCRATCH) == CONFIG_RAMDUMP_MODE)) {
-		/*   run fastboot */
-		run_command("fastboot", 0);
+		/*   run reset instead of fastboot */
+		run_command("reset", 0);
 	}
 #endif
 
@@ -602,3 +624,118 @@ int board_late_init(void)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_USB_GADGET
+static int s5p_phy_control(int on)
+{
+	return 0;
+}
+
+struct s3c_plat_otg_data s5p_otg_data = {
+	.phy_control	= s5p_phy_control,
+	.regs_phy	= EXYNOS4_USBPHY_BASE,
+	.regs_otg	= EXYNOS4_USBOTG_BASE,
+	.usb_phy_ctrl	= EXYNOS4_USBPHY_CONTROL,
+	.usb_flags	= PHY0_SLEEP,
+};
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	return s3c_udc_probe(&s5p_otg_data);
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_USBDOWNLOAD_GADGET
+int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
+{
+	if (!strcmp(name, "usb_dnl_thor")) {
+		put_unaligned(CONFIG_G_DNL_THOR_VENDOR_NUM, &dev->idVendor);
+		put_unaligned(CONFIG_G_DNL_THOR_PRODUCT_NUM, &dev->idProduct);
+	} else if (!strcmp(name, "usb_dnl_ums")) {
+		put_unaligned(CONFIG_G_DNL_UMS_VENDOR_NUM, &dev->idVendor);
+		put_unaligned(CONFIG_G_DNL_UMS_PRODUCT_NUM, &dev->idProduct);
+	} else {
+		put_unaligned(CONFIG_G_DNL_VENDOR_NUM, &dev->idVendor);
+		put_unaligned(CONFIG_G_DNL_PRODUCT_NUM, &dev->idProduct);
+	}
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_SET_DFU_ALT_INFO
+char *get_dfu_alt_system(char *interface, char *devstr)
+{
+	char *rootdev = getenv("rootdev");
+
+	if (rootdev != NULL && rootdev[0] == '1')
+		setenv("dfu_alt_system", CONFIG_DFU_ALT_SYSTEM_SD);
+
+	return getenv("dfu_alt_system");
+}
+
+char *get_dfu_alt_boot(char *interface, char *devstr)
+{
+	struct mmc *mmc;
+	char *alt_boot;
+	int dev_num;
+
+	dev_num = simple_strtoul(devstr, NULL, 10);
+
+	mmc = find_mmc_device(dev_num);
+	if (!mmc)
+		return NULL;
+
+	if (mmc_init(mmc))
+		return NULL;
+
+	if (IS_SD(mmc))
+		alt_boot = CONFIG_DFU_ALT_BOOT_SD;
+	else
+		alt_boot = CONFIG_DFU_ALT_BOOT_EMMC;
+
+	return alt_boot;
+}
+
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	size_t buf_size = CONFIG_SET_DFU_ALT_BUF_LEN;
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, buf_size);
+	char *alt_info = "Settings not found!";
+	char *status = "error!\n";
+	char *alt_setting;
+	char *alt_sep;
+	int offset = 0;
+
+	puts("DFU alt info setting: ");
+
+	alt_setting = get_dfu_alt_boot(interface, devstr);
+	if (alt_setting) {
+		setenv("dfu_alt_boot", alt_setting);
+		offset = snprintf(buf, buf_size, "%s", alt_setting);
+	}
+
+	alt_setting = get_dfu_alt_system(interface, devstr);
+	if (alt_setting) {
+		if (offset)
+			alt_sep = ";";
+		else
+			alt_sep = "";
+
+		offset += snprintf(buf + offset, buf_size - offset,
+				    "%s%s", alt_sep, alt_setting);
+	}
+
+	if (offset) {
+		alt_info = buf;
+		status = "done\n";
+	}
+
+	setenv("dfu_alt_info", alt_info);
+	puts(status);
+}
+#endif

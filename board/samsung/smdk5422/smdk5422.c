@@ -23,6 +23,8 @@
 #include <common.h>
 #include <asm/io.h>
 #include <netdev.h>
+#include <dwc3-uboot.h>
+#include <usb.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/power.h>
@@ -31,6 +33,8 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/sromc.h>
 #include <asm/arch/sysreg.h>
+#include <asm/unaligned.h>
+#include <mmc.h>
 #include "pmic.h"
 #ifdef CONFIG_CPU_EXYNOS5422_EVT0
 #ifdef CONFIG_MACH_UNIVERSAL5422
@@ -38,10 +42,6 @@
 #else
 #include "pmic_lm3560.h"
 #endif
-#endif
-
-#ifdef CONFIG_EXYNOS_THERMAL
-#include "tmu.h"
 #endif
 
 #define DEBOUNCE_DELAY	10000
@@ -412,31 +412,6 @@ int board_late_init(void)
 	struct exynos5_power *pmu = (struct exynos5_power *)EXYNOS5_POWER_BASE;
 	unsigned int rst_stat = 0;
 
-#ifdef CONFIG_EXYNOS_THERMAL
-	int temp, ret;
-	int stable_temp = CONFIG_EXYNOS_THERMAL_STABLE_TEMP;
-
-	ret = exynos_tmu_probe();
-	if (ret)
-		printf("failed to probe tmu\n");
-	else {
-		temp = exynos_tmu_read_max_temp();
-		if (temp > stable_temp) {
-			/* Set cpu clock to minimal */
-			set_kfc_clock(1);
-			while (temp > stable_temp) {
-				printf("Wait until temp:%d falls to %d\n",
-						temp, stable_temp);
-				mdelay(1000);
-				temp = exynos_tmu_read_max_temp();
-			}
-			/* Restore cpu clock to 800Mhz */
-			set_kfc_clock(0);
-		}
-		exynos_tmu_shutdown();
-	}
-#endif
-
 	rst_stat = readl(&pmu->rst_stat);
 	printf("rst_stat : 0x%x\n", rst_stat);
 #ifdef CONFIG_RAMDUMP_MODE
@@ -489,3 +464,129 @@ unsigned int get_board_rev(void)
 
 	return board_rev_info;
 }
+
+#ifdef CONFIG_USB_DWC3
+static struct dwc3_device dwc3_device_data = {
+	.maximum_speed = USB_SPEED_SUPER,
+	.base = 0x12000000,
+	.dr_mode = USB_DR_MODE_PERIPHERAL,
+	.index = 0,
+};
+
+int usb_gadget_handle_interrupts(void)
+{
+	dwc3_uboot_handle_interrupt(0);
+	return 0;
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	return 0;
+}
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	struct exynos_usb3_phy *phy = (struct exynos_usb3_phy *)
+		samsung_get_base_usb3_phy();
+
+	if (!phy) {
+		error("usb3 phy not supported");
+		return -1;
+	}
+
+	set_usbdrd_phy_ctrl(POWER_USB_DRD_PHY_CTRL_EN);
+	exynos5_usb3_phy_init(phy);
+
+	return dwc3_uboot_init(&dwc3_device_data);
+}
+#endif
+
+#ifdef CONFIG_USBDOWNLOAD_GADGET
+int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
+{
+	if (!strcmp(name, "usb_dnl_thor")) {
+		put_unaligned(CONFIG_G_DNL_THOR_VENDOR_NUM, &dev->idVendor);
+		put_unaligned(CONFIG_G_DNL_THOR_PRODUCT_NUM, &dev->idProduct);
+	} else if (!strcmp(name, "usb_dnl_ums")) {
+		put_unaligned(CONFIG_G_DNL_UMS_VENDOR_NUM, &dev->idVendor);
+		put_unaligned(CONFIG_G_DNL_UMS_PRODUCT_NUM, &dev->idProduct);
+	} else {
+		put_unaligned(CONFIG_G_DNL_VENDOR_NUM, &dev->idVendor);
+		put_unaligned(CONFIG_G_DNL_PRODUCT_NUM, &dev->idProduct);
+	}
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_SET_DFU_ALT_INFO
+char *get_dfu_alt_system(char *interface, char *devstr)
+{
+	char *rootdev = getenv("rootdev");
+
+	if (rootdev != NULL && rootdev[0] == '1')
+		setenv("dfu_alt_system", CONFIG_DFU_ALT_SYSTEM_SD);
+
+	return getenv("dfu_alt_system");
+}
+
+char *get_dfu_alt_boot(char *interface, char *devstr)
+{
+	struct mmc *mmc;
+	char *alt_boot;
+	int dev_num;
+
+	dev_num = simple_strtoul(devstr, NULL, 10);
+
+	mmc = find_mmc_device(dev_num);
+	if (!mmc)
+		return NULL;
+
+	if (mmc_init(mmc))
+		return NULL;
+
+	if (IS_SD(mmc))
+		alt_boot = CONFIG_DFU_ALT_BOOT_SD;
+	else
+		alt_boot = CONFIG_DFU_ALT_BOOT_EMMC;
+
+	return alt_boot;
+}
+
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	size_t buf_size = CONFIG_SET_DFU_ALT_BUF_LEN;
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, buf_size);
+	char *alt_info = "Settings not found!";
+	char *status = "error!\n";
+	char *alt_setting;
+	char *alt_sep;
+	int offset = 0;
+
+	puts("DFU alt info setting: ");
+
+	alt_setting = get_dfu_alt_boot(interface, devstr);
+	if (alt_setting) {
+		setenv("dfu_alt_boot", alt_setting);
+		offset = snprintf(buf, buf_size, "%s", alt_setting);
+	}
+
+	alt_setting = get_dfu_alt_system(interface, devstr);
+	if (alt_setting) {
+		if (offset)
+			alt_sep = ";";
+		else
+			alt_sep = "";
+
+		offset += snprintf(buf + offset, buf_size - offset,
+				    "%s%s", alt_sep, alt_setting);
+	}
+
+	if (offset) {
+		alt_info = buf;
+		status = "done\n";
+	}
+
+	setenv("dfu_alt_info", alt_info);
+	puts(status);
+}
+#endif

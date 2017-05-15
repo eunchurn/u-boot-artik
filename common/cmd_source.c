@@ -35,6 +35,7 @@
 #include <command.h>
 #include <image.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <asm/byteorder.h>
 #if defined(CONFIG_8xx)
 #include <mpc8xx.h>
@@ -129,7 +130,7 @@ source (ulong addr, const char *fit_uname)
 
 		/* verify integrity */
 		if (verify) {
-			if (!fit_image_check_hashes (fit_hdr, noffset)) {
+			if (!fit_image_verify(fit_hdr, noffset)) {
 				puts ("Bad Data Hash\n");
 				return 1;
 			}

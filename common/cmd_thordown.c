@@ -15,21 +15,37 @@
 
 int do_thor_down(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc < 4)
-		return CMD_RET_USAGE;
-
-	char *usb_controller = argv[1];
-	char *interface = argv[2];
-	char *devstring = argv[3];
-
+	char *usb_controller;
+	char *interface;
+	char *devstring;
 	int ret;
 
 	puts("TIZEN \"THOR\" Downloader\n");
 
-	ret = dfu_init_env_entities(interface, simple_strtoul(devstring,
-							      NULL, 10));
+	switch (argc) {
+	case 1:
+		usb_controller = strdup(getenv("dfu_usb_con"));
+		interface = strdup(getenv("dfu_interface"));
+		devstring = strdup(getenv("dfu_device"));
+
+		if (!usb_controller || !interface || !devstring) {
+			puts("DFU: default device environment is not set.\n");
+			ret = CMD_RET_USAGE;
+			goto bad_args;
+		}
+		break;
+	case 4:
+		usb_controller = argv[1];
+		interface = argv[2];
+		devstring = argv[3];
+		break;
+	default:
+		return CMD_RET_USAGE;
+	}
+
+	ret = dfu_init_env_entities(interface, devstring);
 	if (ret)
-		return ret;
+		goto done;
 
 	int controller_index = simple_strtoul(usb_controller, NULL, 0);
 	ret = board_usb_init(controller_index, USB_INIT_DEVICE);
@@ -60,7 +76,12 @@ exit:
 	board_usb_cleanup(controller_index, USB_INIT_DEVICE);
 done:
 	dfu_free_entities();
-
+bad_args:
+	if (argc == 1) {
+		free(usb_controller);
+		free(interface);
+		free(devstring);
+	}
 	return ret;
 }
 

@@ -26,6 +26,7 @@
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <hw_sha.h>
 #include <hash.h>
 #include <sha1.h>
