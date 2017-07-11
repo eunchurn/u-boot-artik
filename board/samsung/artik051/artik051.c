@@ -50,6 +50,16 @@ int board_init(void)
 			(bl1 >>  8) & 0xff,
 			(bl1 >>  0) & 0xff);
 
+	static char version[9];
+	strncpy(version, (char *) 0x04047ff8, sizeof(version) - 1);
+	printf("SSS released at %c%c%c%c-%c%c-%c%c\n",
+		version[0], version[1], version[2], version[3],
+		version[4], version[5], version[6], version[7]);
+	strncpy(version, (char *) 0x040c7ff8, sizeof(version) - 1);
+	printf("WLAN released at %c%c%c%c-%c%c-%c%c\n",
+		version[0], version[1], version[2], version[3],
+		version[4], version[5], version[6], version[7]);
+
 	return 0;
 }
 
