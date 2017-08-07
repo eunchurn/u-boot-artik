@@ -42,7 +42,7 @@ int dram_init(void)
 
 int board_init(void)
 {
-	unsigned int bl1 = *((unsigned int *) 0x04001bfc);
+	unsigned int bl1 = *((unsigned int *) 0x020233fc);
 
 	printf("BL1 released at 20%02x-%x-%x %02x:00\n",
 			(bl1 >> 24) & 0xff,
