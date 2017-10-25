@@ -46,7 +46,11 @@
 	"do_boot=\n"							\
 	"    run do_checkupdate\n"					\
 	"    setexpr entrypoint ${bootpart} + 0x20\n"			\
-	"    go ${entrypoint}\0"					\
+	"    if sss_auth_img ${bootpart}; then\n"			\
+	"        go ${entrypoint}\n"					\
+	"    else\n"							\
+	"        reset;\n"						\
+	"    fi\0"							\
 	"do_rescue=\n"							\
 	"    echo Factory reset.\n"					\
 	"    echo Erasing boot partitions...\n"				\
