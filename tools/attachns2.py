@@ -22,7 +22,7 @@ data = fin.read()
 size = fin.tell()
 
 # prepare output file
-size = (size + 32 + 1024) & ~(512 - 1)
+size = (size + 32 + 2048) & ~(512 - 1)
 fout.truncate(size)
 
 # write binary image
