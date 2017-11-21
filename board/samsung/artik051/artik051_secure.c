@@ -7,6 +7,8 @@
 #define EXT_GET_DOWNLOADINGSIZE_ADDRESS (EXTERNAL_FUNC_ADDRESS + 0x38)
 
 #define BL1_ADDRESS		(ISRAM_BASE - 0x100 + 0x1800)
+#define BL2_ADDRESS		(ISRAM_BASE + 0x0120)
+#define BL2_LOADING_BYTES	(ISRAM_BASE + 0x0118)
 #define IOS_ADDRESS		(ISRAM_BASE + 0x012C)
 #define IOS_LOADING_BYTES	(ISRAM_BASE + 0x0124)
 #define IOS_CHECKSUM_REF	(ISRAM_BASE + 0x0128)
@@ -33,6 +35,7 @@
 #define IMAGE_HEADER_SIZE	32
 #define SIGNATURE_SIZE		272
 #define SIGN_16BYTE_INFO	16
+#define OS_VERIFY_KEY_SIZE	272
 
 #define SB30_MAX_RSA_KEY	(2048 / 8)
 #define SB30_MAX_SIGN_LEN	SB30_MAX_RSA_KEY
@@ -94,6 +97,11 @@ static void set_image_base(u32 addr)
 	writel(addr, IOS_ADDRESS);
 }
 
+static u32 get_bl2image_base(void)
+{
+	return readl(BL2_ADDRESS);
+}
+
 static u32 get_image_checksum(void)
 {
 	return readl(IOS_CHECKSUM_REF);
@@ -107,6 +115,11 @@ static void set_image_checksum(u32 checksum)
 static u32 get_image_size(void)
 {
 	return readl(IOS_LOADING_BYTES);
+}
+
+static u32 get_bl2image_size(void)
+{
+	return readl(BL2_LOADING_BYTES);
 }
 
 static void set_image_size(u32 bytes)
@@ -134,6 +147,9 @@ static int parse_img_header(void)
 	return 1;
 }
 
+/*
+ * Verify os with rsa public key in bl1 context
+ */
 static int check_rsa_signature(struct sb30_context *context,
 		unsigned char *start, int len,
 		unsigned char *signature, int siglen)
@@ -144,6 +160,25 @@ static int check_rsa_signature(struct sb30_context *context,
 	return verify_pss_rsa_signature2(
 			context->func_vector[1], 1, 1,
 			(unsigned char *)&context->rsa_public_key,
+			sizeof(struct rsa_public_key), start, len,
+			(unsigned char *)signature, siglen) == SB_OK;
+}
+
+/*
+ * Verify os with rsa public key in bl2 context
+ */
+static int check_rsa_signature2(struct sb30_context *context,
+		unsigned char *start, int len,
+		unsigned char *signature, int siglen)
+{
+	u32 rsa_pub;
+
+	rsa_pub = get_bl2image_base() + get_bl2image_size()
+			- SIGNATURE_SIZE - OS_VERIFY_KEY_SIZE;
+
+	return verify_pss_rsa_signature2(
+			context->func_vector[1], 1, 1,
+			(unsigned char *)rsa_pub,
 			sizeof(struct rsa_public_key), start, len,
 			(unsigned char *)signature, siglen) == SB_OK;
 }
@@ -171,7 +206,7 @@ static int verify_signature(void)
 	/* 0x02023400 for 8KB bl1 */
 	context = BL1_ADDRESS + GetDownloadingSize() - BL1_SIGNATURE_SIZE;
 
-	return check_rsa_signature((struct sb30_context *)context,
+	return check_rsa_signature2((struct sb30_context *)context,
 				(unsigned char *)start,
 				length,
 				(unsigned char *)signature,
