@@ -14,6 +14,10 @@
 
 #ifdef CONFIG_CMD_GO
 
+#ifdef CONFIG_TARGET_ARTIK05X
+extern int is_sboot(void);
+extern int authenticate_image(u32 baseaddr);
+#endif
 /* Allow ports to override the default behavior */
 __attribute__((weak))
 unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
@@ -32,6 +36,13 @@ static int do_go(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	addr = simple_strtoul(argv[1], NULL, 16);
 
+#ifdef CONFIG_TARGET_ARTIK05X
+	if (is_sboot()) {
+		if (!authenticate_image(addr - 0x20)) {
+			return CMD_RET_FAILURE;
+		}
+	}
+#endif
 	printf ("## Starting application at 0x%08lX ...\n", addr);
 
 	/*

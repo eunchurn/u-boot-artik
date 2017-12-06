@@ -231,7 +231,7 @@ static int verify_checksum(void)
 	return get_image_checksum() == checksum;
 }
 
-static int authenticate_image(u32 baseaddr)
+int authenticate_image(u32 baseaddr)
 {
 	set_image_base(baseaddr);
 
@@ -242,6 +242,11 @@ static int authenticate_image(u32 baseaddr)
 		return 1;
 
 	return 0;
+}
+
+int is_sboot(void)
+{
+	return is_sboot_enabled();
 }
 
 static int do_sss_status(cmd_tbl_t *cmdtp, int flag, int argc,
