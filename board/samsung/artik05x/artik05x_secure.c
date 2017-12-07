@@ -148,26 +148,9 @@ static int parse_img_header(void)
 }
 
 /*
- * Verify os with rsa public key in bl1 context
- */
-static int check_rsa_signature(struct sb30_context *context,
-		unsigned char *start, int len,
-		unsigned char *signature, int siglen)
-{
-	if (context->context_info.signing_type != RSA)
-		return 0;
-
-	return verify_pss_rsa_signature2(
-			context->func_vector[1], 1, 1,
-			(unsigned char *)&context->rsa_public_key,
-			sizeof(struct rsa_public_key), start, len,
-			(unsigned char *)signature, siglen) == SB_OK;
-}
-
-/*
  * Verify os with rsa public key in bl2 context
  */
-static int check_rsa_signature2(struct sb30_context *context,
+static int check_rsa_signature(struct sb30_context *context,
 		unsigned char *start, int len,
 		unsigned char *signature, int siglen)
 {
@@ -206,7 +189,7 @@ static int verify_signature(void)
 	/* 0x02023400 for 8KB bl1 */
 	context = BL1_ADDRESS + GetDownloadingSize() - BL1_SIGNATURE_SIZE;
 
-	return check_rsa_signature2((struct sb30_context *)context,
+	return check_rsa_signature((struct sb30_context *)context,
 				(unsigned char *)start,
 				length,
 				(unsigned char *)signature,
