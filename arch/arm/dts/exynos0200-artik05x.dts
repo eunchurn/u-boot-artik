@@ -1,5 +1,5 @@
 /*
- * ARTIK-053 board device tree source
+ * ARTIK-05x board device tree source
  *
  * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *              http://www.samsung.com
@@ -11,7 +11,7 @@
 #include "exynos0200.dtsi"
 
 / {
-	model = "ARTIK-053 based on Exynos T20";
+	model = "ARTIK-05x based on Exynos T20";
 	compatible = "samsung,artik051", "samsung,exynos0200";
 
 	aliases {

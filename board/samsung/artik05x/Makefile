@@ -5,5 +5,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= artik051.o
-obj-$(CONFIG_SECURE_BOOT) += artik051_secure.o
+obj-y	:= artik05x.o
+obj-$(CONFIG_SECURE_BOOT) += artik05x_secure.o

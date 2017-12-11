@@ -45,6 +45,11 @@ config TARGET_ARTIK051
 	select CLK_EXYNOS
 	select CLK_EXYNOS0200
 
+config TARGET_ARTIK05X
+	bool "ARTIK-05x board"
+	select CLK_EXYNOS
+	select CLK_EXYNOS0200
+
 endchoice
 endif
 
@@ -169,6 +174,6 @@ source "board/samsung/arndale/Kconfig"
 source "board/samsung/smdk5250/Kconfig"
 source "board/samsung/smdk5420/Kconfig"
 source "board/samsung/espresso7420/Kconfig"
-source "board/samsung/artik051/Kconfig"
+source "board/samsung/artik05x/Kconfig"
 
 endif

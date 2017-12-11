@@ -2,13 +2,13 @@
  * Copyright (C) 2017 Samsung Electronics
  * Heesub Shin <heesub.shin@samsung.com>
  *
- * Configuation settings for the ARTIK-053 Starter Kit.
+ * Configuation settings for the ARTIK-05x Starter Kit.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_ARTIK053_H__
-#define __CONFIG_ARTIK053_H__
+#ifndef __CONFIG_ARTIK05X_H__
+#define __CONFIG_ARTIK05X_H__
 
 #include <configs/artik051.h>
 
@@ -87,4 +87,4 @@
 #define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x80090810
 
-#endif	/* __CONFIG_ARTIK053_H__ */
+#endif	/* __CONFIG_ARTIK05X_H__ */

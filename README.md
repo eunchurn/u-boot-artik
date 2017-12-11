@@ -18,7 +18,7 @@ git clone --depth=50 --branch=artik-05x https://github.com/SamsungARTIK/u-boot-a
 
 #### Compile
 ```bash
-make artik053_defconfig
+make artik05x_defconfig
 make CROSS_COMPILE=arm-none-eabi-
 ```
 
@@ -52,7 +52,7 @@ Verify OS(TizenRT) image with Customer's Pub.key and then jump to OS entry point
 
 #### Compile
 ```bash
-make artik053_defconfig
+make artik05x_defconfig
 make CROSS_COMPILE=arm-none-eabi-
 ```
 

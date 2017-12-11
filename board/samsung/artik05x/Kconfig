@@ -1,14 +1,14 @@
-if TARGET_ARTIK051
+if TARGET_ARTIK05X
 
 config SYS_BOARD
-	default "artik051"
+	default "artik05x"
 
 config SYS_VENDOR
 	default "samsung"
 
 config SYS_CONFIG_NAME
 	string "Board configuration name"
-	default "artik051"
+	default "artik05x"
 	help
 	  This option contains information about board configuration name.
 	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
