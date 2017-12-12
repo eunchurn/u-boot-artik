@@ -61,8 +61,8 @@
 	"        setexpr.l size *${sizeaddr}\n"				\
 	"        setexpr.l crc  *${crcaddr}\n"				\
 	"        setexpr.l otagz ${otapart} + 0x1000\n"			\
-	"        crc32 ${otagz} ${size} 0x02022000\n"			\
-	"        if itest.l *0x02022000 -eq ${crc}; then\n"		\
+	"        crc32 ${otagz} ${size} 0x02023800\n"			\
+	"        if itest.l *0x02023800 -eq ${crc}; then\n"		\
 	"            echo Found an update image downloaded.\n"		\
 	"            erase ${bootpart} +${bootsize}\n"			\
 	"            echo Updating boot partition...\n"			\
