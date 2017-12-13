@@ -46,7 +46,7 @@
 	"do_boot=\n"							\
 	"    run do_checkupdate\n"					\
 	"    setexpr entrypoint ${bootpart} + 0x20\n"			\
-	"    go ${entrypoint}\n"					\
+	"    go ${entrypoint}\0"					\
 	"do_rescue=\n"							\
 	"    echo Factory reset.\n"					\
 	"    echo Erasing boot partitions...\n"				\
