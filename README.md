@@ -14,6 +14,11 @@ This project uses the `artik-05x` branch.
 git clone --depth=50 --branch=artik-05x https://github.com/SamsungARTIK/u-boot-artik.git
 ```
 
+#### Pre-Install
+```bash
+sudo apt-get install device-tree-compiler
+```
+
 ### For Standard Module (ARTIK053)
 
 #### Compile
