@@ -170,6 +170,13 @@ config BOOTDELAY
 
 	  See doc/README.autoboot for details.
 
+config BOOTDELAY_MS
+	bool "Change bootdelay unit from seconds to milliseconds"
+	default n
+	depends on AUTOBOOT
+	help
+	  Delay before automatically running bootcmd
+
 menu "Console"
 
 config MENU
