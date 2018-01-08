@@ -36,6 +36,11 @@ static int do_go(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	addr = simple_strtoul(argv[1], NULL, 16);
 
+	/* check exist os area */
+	if (readl(addr) == 0xFFFFFFFF) {
+		return CMD_RET_FAILURE;
+	}
+
 #ifdef CONFIG_TARGET_ARTIK05X
 	if (is_sboot()) {
 		if (!authenticate_image(addr - 0x20)) {
