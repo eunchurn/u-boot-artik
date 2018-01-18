@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import os
 import sys
 import hashlib
 import struct
@@ -20,7 +19,7 @@ fin = open(inputfile, 'rb')
 fout = open(outputfile, 'wb+')
 keyin = open(keyfile, 'rb')
 
-h = hashlib.sha256();
+h = hashlib.sha256()
 
 data = fin.read()
 size = fin.tell()

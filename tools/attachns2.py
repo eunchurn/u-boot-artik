@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import os
 import sys
 import hashlib
 import struct
@@ -16,7 +15,7 @@ except IndexError:
 fin = open(inputfile, 'rb')
 fout = open(outputfile, 'wb+')
 
-h = hashlib.sha256();
+h = hashlib.sha256()
 
 data = fin.read()
 size = fin.tell()
