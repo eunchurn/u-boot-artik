@@ -10,12 +10,50 @@
 #ifndef __CONFIG_ARTIK05X_H__
 #define __CONFIG_ARTIK05X_H__
 
-#include <configs/artik051.h>
+#include <configs/exynos0200-common.h>
+
+#undef CONFIG_CMD_PXE
+#define CONFIG_CMD_UNZIP
+
+#define SDRAM_BANK_SIZE			0
+
+#define CONFIG_SYS_TEXT_BASE		0x04010020
+#define CONFIG_SYS_INIT_SP_ADDR		0x02150000
+#define CONFIG_SYS_SRAM_BASE		0x02020000
+#define CONFIG_SYS_SRAM_SIZE		(1280 * 1024)
+#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SRAM_BASE
+#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_SRAM_BASE
+#define CONFIG_SYS_FLASH_BASE		0x04000000
+#define CONFIG_SYS_FLASH_EMPTY_INFO
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_MAX_FLASH_SECT	2048
+#define CONFIG_SYS_DCACHE_OFF
+
+#define CONFIG_ENV_IS_IN_FLASH		/* remove CONFIG_ENV_IS_IN_FLASH before production release */
+#ifndef CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_IS_NOWHERE
+#endif
+#define CONFIG_ENV_OFFSET		(SZ_1K * 252)
+#define CONFIG_ENV_SIZE			(SZ_1K * 4)
+#define CONFIG_ENV_SECT_SIZE		0x1000
+
+#ifdef CONFIG_SKIP_LOWLEVEL_INIT
+#undef CONFIG_SKIP_LOWLEVEL_INIT
+#endif
+#define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
+
+#define CONFIG_HW_WATCHDOG
+#define CONFIG_HW_WATCHDOG_TIMEOUT_MS	10000
+
+#define CONFIG_MISC_INIT_R
+
+#define CONFIG_MTD_DEVICE
+
+#define CONFIG_SECURE_BOOT
 
 #ifdef CONFIG_BOOTCOMMAND
 #undef CONFIG_BOOTCOMMAND
 #endif
-
 #define CONFIG_BOOTCOMMAND "\n"						\
 	"    if env exists do_rescue; then\n"				\
 	"        c=0;\n"						\
