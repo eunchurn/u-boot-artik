@@ -75,7 +75,6 @@
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #endif
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	"bootlimit=3\0"							\
 	"do_boot=\n"							\
 	"    run do_checkupdate\n"					\
 	"    setexpr entrypoint ${bootpart} + 0x20\n"			\
@@ -105,6 +104,12 @@
 	"        echo Done\n"						\
 	"        reset\n"						\
 	"    fi\0"							\
+	"bootlimit=3\0"							\
+	"altbootcmd=\n"							\
+	"    echo Erasing ota partitions...\n"				\
+	"    erase ${otapart} +${otasize}\n"				\
+	"    run do_rescue\n"						\
+	"    reset\0"							\
 	"bootpart=0x040c8000\0"						\
 	"bootsize=0x258000\0"						\
 	"otapart=0x044a0000\0"						\
