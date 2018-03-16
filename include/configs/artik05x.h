@@ -87,11 +87,31 @@
 	"    reset\0"							\
 	"do_checkupdate=\n"						\
 	"    if itest *${otapart} -ne 0xffffffff; then\n"		\
-	"        setexpr.l sizeaddr ${otapart}\n"			\
+	"        setexpr.l startmagicaddr ${otapart}\n"			\
+	"        setexpr.l startmagic *${startmagicaddr}\n"		\
+	"        if itest ${startmagic} -ne ${otastartmagic}; then\n"	\
+	"            echo Bad START MAGIC image!\n"			\
+	"            run do_eraseota\n"					\
+	"            reset\n"						\
+	"        fi\n"							\
+	"        setexpr.l sizeaddr ${otapart} + 0x4\n"			\
 	"        setexpr.l size *${sizeaddr}\n"				\
-	"        setexpr.l crcaddr ${otapart} + 0x4\n"			\
-	"        setexpr.l crc  *${crcaddr}\n"				\
+	"        setexpr.l sizemax ${otasize} - 0x1000\n"		\
+	"        if itest ${size} -gt ${sizemax}; then\n"		\
+	"            echo update image is too big!\n"			\
+	"            run do_eraseota\n"					\
+	"            reset\n"						\
+	"        fi\n"							\
 	"        setexpr.l otagz ${otapart} + 0x1000\n"			\
+	"        setexpr.l endmagicaddr ${otagz} + ${size}\n"		\
+	"        setexpr.l endmagic *${endmagicaddr}\n"			\
+	"        if itest ${endmagic} -ne ${otaendmagic}; then\n"	\
+	"            echo Bad END MAGIC image!\n"			\
+	"            run do_eraseota\n"					\
+	"            reset\n"						\
+	"        fi\n"							\
+	"        setexpr.l crcaddr ${otapart} + 0x8\n"			\
+	"        setexpr.l crc *${crcaddr}\n"				\
 	"        crc32 ${otagz} ${size} 0x02023800\n"			\
 	"        if itest.l *0x02023800 -eq ${crc}; then\n"		\
 	"            echo Found an update image downloaded.\n"		\
@@ -121,6 +141,8 @@
 	"bootsize=0x258000\0"						\
 	"otapart=0x044a0000\0"						\
 	"otasize=0x180000\0"						\
+	"otastartmagic=0x455A4954\0"					\
+	"otaendmagic=0x4154524E\0"					\
 	"rescuepart=0x04320000\0"					\
 	"res_gpio=gpg16\0"
 
