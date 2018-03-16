@@ -81,33 +81,40 @@
 	"    go ${entrypoint}\0"					\
 	"do_rescue=\n"							\
 	"    echo Factory reset.\n"					\
-	"    echo Erasing boot partitions...\n"				\
-	"    erase ${bootpart} +${bootsize}\n"				\
+	"    run do_eraseboot\n"					\
 	"    echo Flashing factory image...\n"				\
 	"    unzip ${rescuepart} ${bootpart}\n"				\
 	"    reset\0"							\
 	"do_checkupdate=\n"						\
 	"    if itest *${otapart} -ne 0xffffffff; then\n"		\
 	"        setexpr.l sizeaddr ${otapart}\n"			\
-	"        setexpr.l crcaddr ${otapart} + 0x4\n"			\
 	"        setexpr.l size *${sizeaddr}\n"				\
+	"        setexpr.l crcaddr ${otapart} + 0x4\n"			\
 	"        setexpr.l crc  *${crcaddr}\n"				\
 	"        setexpr.l otagz ${otapart} + 0x1000\n"			\
 	"        crc32 ${otagz} ${size} 0x02023800\n"			\
 	"        if itest.l *0x02023800 -eq ${crc}; then\n"		\
 	"            echo Found an update image downloaded.\n"		\
-	"            erase ${bootpart} +${bootsize}\n"			\
+	"            run do_eraseboot\n"				\
 	"            echo Updating boot partition...\n"			\
 	"            unzip ${otagz} ${bootpart}\n"			\
+	"            run do_eraseota\n"					\
+	"            echo Done\n"					\
+	"        else\n"						\
+	"            echo Bad CRC image!\n"				\
+	"            run do_eraseota\n"					\
 	"        fi\n"							\
-	"        erase ${otapart} +${otasize}\n"			\
-	"        echo Done\n"						\
 	"        reset\n"						\
 	"    fi\0"							\
+	"do_eraseboot=\n"						\
+	"    echo Eraseing boot partitions...\n"			\
+	"    erase ${bootpart} +${bootsize}\0"				\
+	"do_eraseota=\n"						\
+	"    echo Erasing ota partitions...\n"				\
+	"    erase ${otapart} +${otasize}\0"				\
 	"bootlimit=3\0"							\
 	"altbootcmd=\n"							\
-	"    echo Erasing ota partitions...\n"				\
-	"    erase ${otapart} +${otasize}\n"				\
+	"    run do_eraseota\n"						\
 	"    run do_rescue\n"						\
 	"    reset\0"							\
 	"bootpart=0x040c8000\0"						\
