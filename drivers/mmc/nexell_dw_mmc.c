@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <malloc.h>
+#include <dm.h>
 #include <dwmmc.h>
 #include <asm/arch/nexell.h>
 #include <asm/arch/clk.h>
@@ -16,7 +16,6 @@
 #include <asm-generic/errno.h>
 #include <fdtdec.h>
 #include <libfdt.h>
-static char *NX_NAME = "NEXELL DWMMC";
 
 #define DWMCI_CLKSEL			0x09C
 #define DWMCI_SHIFT_0			0x0
@@ -33,67 +32,17 @@ static char *NX_NAME = "NEXELL DWMMC";
 					((y & 0x03) << 16) |\
 					((a & 0xFF) << 8)  |\
 					((b & 0x03) << 24))
+#define NX_MMC_MIN_CLOCK			400000
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* FIXME : This func will be remove after support pinctrl.
- * set mmc pad alternative func.
- */
-static void set_mmc_pad_func(struct dwmci_host *host)
-{
-	switch (host->dev_index) {
-	case 0:
-		nx_gpio_set_pad_function(0, 29, 1);
-		nx_gpio_set_pad_function(0, 31, 1);
-		nx_gpio_set_pad_function(1, 1, 1);
-		nx_gpio_set_pad_function(1, 3, 1);
-		nx_gpio_set_pad_function(1, 5, 1);
-		nx_gpio_set_pad_function(1, 7, 1);
-
-		nx_gpio_set_drive_strength(0, 29, 2);
-		nx_gpio_set_drive_strength(0, 31, 1);
-		nx_gpio_set_drive_strength(1, 1, 1);
-		nx_gpio_set_drive_strength(1, 3, 1);
-		nx_gpio_set_drive_strength(1, 5, 1);
-		nx_gpio_set_drive_strength(1, 7, 1);
-		break;
-	case 1:
-		nx_gpio_set_pad_function(3, 22, 1);
-		nx_gpio_set_pad_function(3, 23, 1);
-		nx_gpio_set_pad_function(3, 24, 1);
-		nx_gpio_set_pad_function(3, 25, 1);
-		nx_gpio_set_pad_function(3, 26, 1);
-		nx_gpio_set_pad_function(3, 27, 1);
-		break;
-	case 2:
-		nx_gpio_set_pad_function(2, 18, 2);
-		nx_gpio_set_pad_function(2, 19, 2);
-		nx_gpio_set_pad_function(2, 20, 2);
-		nx_gpio_set_pad_function(2, 21, 2);
-		nx_gpio_set_pad_function(2, 22, 2);
-		nx_gpio_set_pad_function(2, 23, 2);
-
-		nx_gpio_set_drive_strength(2, 18, 2);
-		nx_gpio_set_drive_strength(2, 19, 1);
-		nx_gpio_set_drive_strength(2, 20, 1);
-		nx_gpio_set_drive_strength(2, 21, 1);
-		nx_gpio_set_drive_strength(2, 22, 1);
-		nx_gpio_set_drive_strength(2, 23, 1);
-
-		if (host->buswidth == 8) {
-			nx_gpio_set_pad_function(4, 21, 2);
-			nx_gpio_set_pad_function(4, 22, 2);
-			nx_gpio_set_pad_function(4, 23, 2);
-			nx_gpio_set_pad_function(4, 24, 2);
-
-			nx_gpio_set_drive_strength(4, 21, 3);
-			nx_gpio_set_drive_strength(4, 22, 3);
-			nx_gpio_set_drive_strength(4, 23, 3);
-			nx_gpio_set_drive_strength(4, 24, 3);
-		}
-		break;
-	}
-}
+struct nexell_dwmmc_priv {
+	int drive_delay;
+	int drive_shift;
+	int sample_delay;
+	int sample_shift;
+	struct dwmci_host host;
+};
 
 static unsigned int dw_mci_get_clk(struct dwmci_host *host, uint freq)
 {
@@ -135,21 +84,17 @@ static void dw_mci_clksel(struct dwmci_host *host)
 
 	dwmci_writel(host, DWMCI_CLKSEL, val);
 }
-static void dw_mci_clk_delay(const void *blob, int node,
-			     struct dwmci_host *host)
+
+static void dw_mci_clk_delay(struct nexell_dwmmc_priv *priv)
 {
-	int drive_delay, drive_shift, sample_delay, sample_shift;
 	int val;
+	struct dwmci_host *host = &priv->host;
 
-	drive_delay = fdtdec_get_int(blob, node, "nexell,drive_dly", 0);
-	drive_shift = fdtdec_get_int(blob, node, "nexell,drive_shift", 0);
-	sample_delay = fdtdec_get_int(blob, node, "nexell,sample_dly", 0);
-	sample_shift = fdtdec_get_int(blob, node, "nexell,sample_shift", 0);
-
-	val = NX_MMC_CLK_DELAY(drive_delay, drive_shift,
-				sample_delay, sample_shift);
+	val = NX_MMC_CLK_DELAY(priv->drive_delay, priv->drive_shift,
+			       priv->sample_delay, priv->sample_shift);
 	writel(val, (host->ioaddr + DWMCI_CLKCTRL));
 }
+
 static void dw_mci_reset(int ch)
 {
 	int rst_id = RESET_ID_SDMMC0 + ch;
@@ -158,99 +103,90 @@ static void dw_mci_reset(int ch)
 	nx_rstcon_setrst(rst_id, 1);
 }
 
-struct dwmci_host *host = NULL;
-static int nexell_get_config(const void *blob, int node,
-			     struct dwmci_host *host)
+static int nexell_dwmmc_ofdata_to_platdata(struct udevice *dev)
 {
-	unsigned long base;
-	int fifo_size = 0x20;
+	struct nexell_dwmmc_priv *priv = dev_get_priv(dev);
+	struct dwmci_host *host = &priv->host;
 
-	host->dev_index = fdtdec_get_int(blob, node, "index", 0);
-	host->buswidth = fdtdec_get_int(blob, node,
-					 "nexell,bus-width", 0);
-	if (host->buswidth <= 0) {
-		printf("DW_MMC%d Can't get bus width\n", host->dev_index);
-		return -EINVAL;
-	}
-
-	base = fdtdec_get_uint(blob, node, "reg", 0);
-	if (!base) {
-		printf("DWMMC%d: Can't get base address\n", host->dev_index);
-		return -EINVAL;
-	}
-	host->ioaddr = (void *)base;
-
-	host->name = NX_NAME;
-	host->clksel = dw_mci_clksel;
-	host->dev_id = host->dev_index;
+	host->name = dev->name;
+	host->ioaddr = (void *)dev_get_addr(dev);
+	host->buswidth = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					"nexell,bus-width", 4);
 	host->get_mmc_clk = dw_mci_get_clk;
-	host->fifoth_val = MSIZE(0x2) | RX_WMARK(fifo_size/2 - 1)
-	| TX_WMARK(fifo_size/2);
+	host->clksel = dw_mci_clksel;
+	host->priv = dev;
+	host->dev_index = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					 "index", -1);
+	if (host->dev_index == -1) {
+		printf("fail to get index value\n");
+		return -EINVAL;
+	}
 
-	if (fdtdec_get_int(blob, node, "nexell,ddr", 0))
+	priv->drive_delay = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					   "nexell,drive_dly", 0);
+	priv->drive_shift = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					   "nexell,drive_shift", 0);
+	priv->sample_delay = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					    "nexell,sample_dly", 0);
+	priv->sample_shift = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					    "nexell,sample_shift", 0);
+
+	if (fdtdec_get_int(gd->fdt_blob, dev->of_offset, "nexell,ddr", 0))
 		host->caps |= MMC_MODE_DDR_52MHz;
+
 	return 0;
 }
 
-static int nexell_mmc_process_node(const void *blob, int node_list[], int count)
+static int nexell_dwmmc_probe(struct udevice *dev)
 {
-	int i, node, err;
-	int freq;
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct nexell_dwmmc_priv *priv = dev_get_priv(dev);
+	struct dwmci_host *host = &priv->host;
+	int fifo_depth;
+	u32 freq;
+	int ret;
 
-	for (i = 0; i < count ; i++) {
-		node = node_list[i];
-		host = malloc(sizeof(struct dwmci_host));
+	/* Get max frequency */
+	freq = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "frequency",
+			      NX_MMC_MIN_CLOCK);
 
-		if (!host) {
-			printf("dwmci_host malloc fail!\n");
-			return 1;
-		}
-		memset(host, 0x00, sizeof(*host));
-		err = nexell_get_config(blob, node, host);
-		if (err) {
-			printf("%s: failed to decode dev %d\n", __func__, i);
-			return err;
-		}
+	fifo_depth = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+				    "fifo-depth", 0x20);
+	if (fifo_depth < 0)
+		return -EINVAL;
 
-		freq = fdtdec_get_int(blob, node, "frequency", 0);
-		dw_mci_set_clk(host->dev_index, freq * 4);
+	host->fifoth_val = MSIZE(0x2) |
+		RX_WMARK(fifo_depth / 2 - 1) | TX_WMARK(fifo_depth / 2);
 
-		add_dwmci(host, freq, 400000);
-		set_mmc_pad_func(host);
-#if defined (CONFIG_ARCH_S5P6818)
-		if (host->buswidth == 8)
-			nx_tieoff_set(NX_TIEOFF_MMC_8BIT, 1);
+	dw_mci_set_clk(host->dev_index, freq * 4);
+
+	ret = add_dwmci(host, freq, NX_MMC_MIN_CLOCK);
+	if (ret)
+		return ret;
+
+#ifdef CONFIG_ARCH_S5P6818
+	if (host->buswidth == 8)
+		nx_tieoff_set(NX_TIEOFF_MMC_8BIT, 1);
 #endif
-		dw_mci_reset(host->dev_index);
-		dw_mci_clk_delay(blob, node, host);
-	}
+
+	dw_mci_reset(host->dev_index);
+	dw_mci_clk_delay(priv);
+
+	upriv->mmc = host->mmc;
+
 	return 0;
 }
 
-int nexell_mmc_init(const void  *blob)
-{
-	int compat_id;
-	int err = 0;
-	int count;
-	int node_list[3] = { 0, };
+static const struct udevice_id nexell_dwmmc_ids[] = {
+	{ .compatible = "nexell,nexell-dwmmc" },
+	{ }
+};
 
-
-	compat_id = COMPAT_NEXELL_DWMMC;
-	count = fdtdec_find_aliases_for_id(blob, "mmc",
-				compat_id, node_list, 3);
-
-	err = nexell_mmc_process_node(blob, node_list, count);
-	if (err) {
-		printf("fail to add nexell DW_MMC\n");
-		return err;
-	}
-
-	return err;
-}
-int board_mmc_init(bd_t *bis)
-{
-	int err;
-
-	err = nexell_mmc_init(gd->fdt_blob);
-	return err;
-}
+U_BOOT_DRIVER(nexell_dwmmc_drv) = {
+	.name		= "nexell_dwmmc",
+	.id		= UCLASS_MMC,
+	.of_match	= nexell_dwmmc_ids,
+	.ofdata_to_platdata = nexell_dwmmc_ofdata_to_platdata,
+	.probe		= nexell_dwmmc_probe,
+	.priv_auto_alloc_size = sizeof(struct nexell_dwmmc_priv),
+};
