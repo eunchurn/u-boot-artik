@@ -260,7 +260,7 @@ static int exynos0_sflash_probe(struct udevice *dev)
 	mtd = dev_get_uclass_priv(dev);
 
 	mtd->dev		= dev;
-	mtd->name		= "sflash";
+	mtd->name		= "nor0";
 	mtd->type		= MTD_NORFLASH;
 	mtd->flags		= MTD_CAP_NORFLASH;
 	mtd->_erase		= exynos0_sflash_erase;
