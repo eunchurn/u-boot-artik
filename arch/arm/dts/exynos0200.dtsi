@@ -54,7 +54,7 @@
 			"spl_clk_bus_p0_sss", "dft_oscclk_sss";
 	};
 
-	sflash_controller: sflash@0x80310000 {
+	sflash_controller: sflash@80310000 {
 		compatible = "samsung,exynos0200-sflash";
 		reg = <0x80310000 0x100>,
 		      <0x04000000 0x1000000>;
@@ -106,7 +106,7 @@
 		id = <4>;
 	};
 
-	pinctrl: pinctrl@0x80040000 {
+	pinctrl: pinctrl@80040000 {
 		compatible = "samsung,exynos4210-pinctrl";
 		reg = <0x80040000 0x1000>;
 	};

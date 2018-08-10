@@ -18,7 +18,7 @@
  */
 
 / {
-	pinctrl@0x80040000 {
+	pinctrl@80040000 {
 		gpp0: gpp0 {
 			gpio-controller;
 			#gpio-cells = <2>;
