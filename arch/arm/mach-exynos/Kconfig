@@ -7,6 +7,9 @@ choice
 config ARCH_EXYNOS0
 	bool "Exynos0 SoC family"
 	select CPU_V7R
+	select CLK_EXYNOS
+	select CLK_EXYNOS0200
+	select SECURE_BOOT
 	help
 	  Samsung Exynos0 SoC family are base on ARM Cortex-R4 CPU.
 
@@ -42,13 +45,9 @@ choice
 
 config TARGET_ARTIK051
 	bool "ARTIK-051 board"
-	select CLK_EXYNOS
-	select CLK_EXYNOS0200
 
 config TARGET_ARTIK05X
 	bool "ARTIK-05x board"
-	select CLK_EXYNOS
-	select CLK_EXYNOS0200
 
 endchoice
 endif

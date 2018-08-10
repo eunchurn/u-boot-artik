@@ -16,6 +16,6 @@ config SYS_CONFIG_NAME
 
 config SECURE_BOOT
 	bool "Enable Secure Boot"
-	default n
+	default y
 
 endif
