@@ -13,6 +13,20 @@
 #define IOS_LOADING_BYTES	(ISRAM_BASE + 0x0124)
 #define IOS_CHECKSUM_REF	(ISRAM_BASE + 0x0128)
 
+#define MB_REG_BASE		(0x800E0000)
+#define MB_STATUS		(*(volatile u32 *)(MB_REG_BASE + 0x0000))
+
+#define CTRL_FIELD_BASE		(MB_REG_BASE + 0x0100)
+
+#define CTRL_FIELD_ADDR(val)	(CTRL_FIELD_BASE+(val<<2))
+#define CTRL_FIELD(val)		(*(volatile u32 *)(CTRL_FIELD_ADDR(val)))
+
+#define ISP_CTRL_FIELD_SET(index, value) 	CTRL_FIELD(index) = value
+#define ISP_CTRL_FIELD_GET(index, value) 	value = CTRL_FIELD(index)
+
+#define MB_SUCCESS		0
+#define MB_FAIL			1
+
 #define verify_pss_rsa_signature2(ptr, a, b, c, d, e, f, g, h)		\
 	(((int(*)(int, int, unsigned char *, int, unsigned char *, int,	\
 		unsigned char *, int))(((unsigned int *)(ptr))))	\
@@ -145,6 +159,26 @@ static int parse_img_header(void)
 	set_image_checksum(h->checksum);
 
 	return 1;
+}
+
+int direct_access_lock(void)
+{
+	int ret = MB_FAIL;
+
+	if (MB_STATUS) {
+		return ret;
+	}
+
+	ISP_CTRL_FIELD_SET(0, 0x502);
+
+	while((MB_STATUS) & (0x01))
+
+	ISP_CTRL_FIELD_GET(0, ret);
+	if (ret == 0xA1) {
+		ret = MB_SUCCESS;
+	}
+
+	return ret;
 }
 
 /*

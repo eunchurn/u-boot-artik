@@ -17,6 +17,7 @@
 #ifdef CONFIG_TARGET_ARTIK05X
 extern int is_sboot(void);
 extern int authenticate_image(u32 baseaddr);
+extern int direct_access_lock(void);
 #endif
 /* Allow ports to override the default behavior */
 __attribute__((weak))
@@ -46,6 +47,10 @@ static int do_go(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (!authenticate_image(addr - 0x20)) {
 			return CMD_RET_FAILURE;
 		}
+	}
+
+	if (direct_access_lock()) {
+		return CMD_RET_FAILURE;
 	}
 #endif
 	printf ("## Starting application at 0x%08lX ...\n", addr);
