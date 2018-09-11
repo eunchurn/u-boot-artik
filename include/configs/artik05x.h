@@ -94,13 +94,13 @@
 	"        fi\n"							\
 	"        setexpr.l sizeaddr ${otapart} + 0x4\n"			\
 	"        setexpr.l size *${sizeaddr}\n"				\
-	"        setexpr.l sizemax ${otasize} - 0x1000\n"		\
+	"        setexpr.l sizemax ${otasize} - 0xC\n"			\
 	"        if itest ${size} -gt ${sizemax}; then\n"		\
 	"            echo update image is too big!\n"			\
 	"            run do_eraseota\n"					\
 	"            reset\n"						\
 	"        fi\n"							\
-	"        setexpr.l otagz ${otapart} + 0x1000\n"			\
+	"        setexpr.l otagz ${otapart} + 0xC\n"			\
 	"        setexpr.l endmagicaddr ${otagz} + ${size}\n"		\
 	"        setexpr.l endmagic *${endmagicaddr}\n"			\
 	"        if itest ${endmagic} -ne ${otaendmagic}; then\n"	\
