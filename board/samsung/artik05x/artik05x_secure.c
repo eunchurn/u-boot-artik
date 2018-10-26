@@ -24,6 +24,9 @@
 #define ISP_CTRL_FIELD_SET(index, value) 	CTRL_FIELD(index) = value
 #define ISP_CTRL_FIELD_GET(index, value) 	value = CTRL_FIELD(index)
 
+#define FUNC_SYSTEM_GET_INFO	0x0102
+#define FUNC_SYSTEM_LOCK		0x0502
+
 #define MB_SUCCESS		0
 #define MB_FAIL			1
 
@@ -163,22 +166,31 @@ static int parse_img_header(void)
 
 int direct_access_lock(void)
 {
-	int ret = MB_FAIL;
+	int ret = 0;
 
 	if (MB_STATUS) {
-		return ret;
+		return MB_FAIL;
 	}
 
-	ISP_CTRL_FIELD_SET(0, 0x502);
+	ISP_CTRL_FIELD_SET(0, FUNC_SYSTEM_GET_INFO);
 
+	while((MB_STATUS) & (0x01))
+	ISP_CTRL_FIELD_GET(0, ret);
+	if (ret != 0xA1) {
+		printf("%s FUNC_SYSTEM_GET_INFO Fail:0x%x\n", __func__, ret);
+		return MB_FAIL;
+	}
+
+	ISP_CTRL_FIELD_SET(0, FUNC_SYSTEM_LOCK);
 	while((MB_STATUS) & (0x01))
 
 	ISP_CTRL_FIELD_GET(0, ret);
-	if (ret == 0xA1) {
-		ret = MB_SUCCESS;
+	if (ret != 0xA1) {
+		printf("%s FUNC_SYSTEM_LOCK Fail:0x%x\n", __func__, ret);
+		return MB_FAIL;
 	}
 
-	return ret;
+	return MB_SUCCESS;
 }
 
 /*
